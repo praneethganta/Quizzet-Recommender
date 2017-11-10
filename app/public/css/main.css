@@ -1,0 +1,456 @@
+.container {
+    margin-top: 60px;
+}
+.layout_box{
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+    /*height: 100%;*/
+    border: 1px solid #d8d8d8;
+    border-radius: 2px 2px;
+    margin-top: 15px;
+}
+.layout_box_header{
+    position:relative;
+    line-height: 2;
+    background: #f8f8f8;
+    border-bottom: 1px solid #d8d8d8;
+    border-radius: 2px 2px 0 0;
+    padding: 0 1em;
+    min-height: 2.2em;
+}
+.layout_box_content{
+    position: relative;
+    width: 100%;
+    border-radius: 0 0 2px 2px;
+    overflow: hidden;
+    /*height: 100%;*/
+    margin-top: 15px;
+    margin-bottom: 10px;
+}
+.layout_box .layout_box_header input{
+    min-width: 300px;
+    border: none;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    line-height: 1.3;
+    margin: 0.4em 0;
+}
+
+.c3-line {
+    stroke-width: 3px;
+}
+.c3-circle {
+    r: 4;
+}
+path:hover {
+	fill-opacity: .7;
+}        
+/* Legend Font Style */        
+/* Legend Position Style */
+.legend {
+	font: 11px sans-serif;
+	position:absolute;
+	left:800px;
+	top:350px;
+}
+div.tooltip {   
+ 	position: absolute;           
+	text-align: center;           
+	width: 100px;                  
+	height: 28px;                 
+	padding: 2px;             
+	font: 12px sans-serif;        
+	background: white;   
+	border: 0px;      
+	border-radius: 8px;           
+	pointer-events: none;         
+}
+.dropdown-menu {
+    min-width: 90px !important;
+    left: 50% !important;
+    text-align:center;
+}
+.c3 .c3-axis-y2 line,.c3 .c3-axis-y2 path, .c3 .c3-axis-y2 text{
+	stroke: #b30000;
+}
+.btn.active[data-active-class="info"] {
+    color: #fff;
+    background-color: #31b0d5;
+    border-color: #269abc;
+}
+
+.container {
+    margin-top: 60px;
+}
+.layout_box{
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+    /*height: 100%;*/
+    border: 1px solid #d8d8d8;
+    border-radius: 2px 2px;
+    margin-top: 15px;
+}
+.layout_box_header{
+    position:relative;
+    line-height: 2;
+    background: #f8f8f8;
+    border-bottom: 1px solid #d8d8d8;
+    border-radius: 2px 2px 0 0;
+    padding: 0 1em;
+    min-height: 2.2em;
+}
+.layout_box_content{
+    position: relative;
+    width: 100%;
+    border-radius: 0 0 2px 2px;
+    overflow: hidden;
+    /*height: 100%;*/
+    margin-top: 15px;
+    margin-bottom: 10px;
+}
+.layout_box .layout_box_header input{
+    min-width: 300px;
+    border: none;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    line-height: 1.3;
+    margin: 0.4em 0;
+}
+
+.c3-line {
+    stroke-width: 3px;
+}
+.c3-circle {
+    r: 4;
+}
+path:hover {
+	fill-opacity: .7;
+}
+/* Legend Font Style */
+/* Legend Position Style */
+.legend {
+	font: 11px sans-serif;
+	position:absolute;
+	left:800px;
+	top:350px;
+}
+div.tooltip {
+ 	position: absolute;
+	text-align: center;
+	width: 100px;
+	height: 28px;
+	padding: 2px;
+	font: 12px sans-serif;
+	background: white;
+	border: 0px;
+	border-radius: 8px;
+	pointer-events: none;
+}
+.dropdown-menu {
+    min-width: 90px !important;
+    left: 50% !important;
+    text-align:center;
+}
+.c3 .c3-axis-y2 line,.c3 .c3-axis-y2 path, .c3 .c3-axis-y2 text{
+	stroke: #b30000;
+}
+.btn.active[data-active-class="info"] {
+    color: #fff;
+    background-color: #31b0d5;
+    border-color: #269abc;
+}
+
+.c3 svg {
+    font: 10px sans-serif;
+}
+.c3 path, .c3 line {
+    fill: none;
+    stroke: #000;
+}
+.c3 text {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+}
+.c3-legend-item-tile, .c3-xgrid-focus, .c3-ygrid, .c3-event-rect, .c3-bars path {
+    shape-rendering: crispEdges;
+}
+.c3-chart-arc path {
+    stroke: #fff;
+}
+.c3-chart-arc text {
+    fill: #fff;
+    font-size: 13px;
+}
+/*-- Axis --*/
+ .c3-axis-x .tick {
+}
+.c3-axis-x-label {
+}
+.c3-axis-y .tick {
+}
+.c3-axis-y-label {
+}
+.c3-axis-y2 .tick {
+}
+.c3-axis-y2-label {
+}
+/*-- Grid --*/
+ .c3-grid line {
+    stroke: #aaa;
+}
+.c3-grid text {
+    fill: #aaa;
+}
+.c3-xgrid, .c3-ygrid {
+    stroke-dasharray: 3 3;
+}
+.c3-xgrid-focus {
+}
+/*-- Text on Chart --*/
+ .c3-text {
+}
+.c3-text.c3-empty {
+    fill: #808080;
+    font-size: 2em;
+}
+/*-- Line --*/
+ .c3-line {
+    stroke-width: 1px;
+}
+/*-- Point --*/
+ .c3-circle._expanded_ {
+    stroke-width: 1px;
+    stroke: white;
+}
+.c3-selected-circle {
+    fill: white;
+    stroke-width: 2px;
+}
+/*-- Bar --*/
+ .c3-bar {
+    stroke-width: 0;
+}
+.c3-bar._expanded_ {
+    fill-opacity: 0.75;
+}
+/*-- Arc --*/
+ .c3-chart-arcs-title {
+    font-size: 1.3em;
+}
+/*-- Focus --*/
+ .c3-target.c3-focused {
+    opacity: 1;
+}
+.c3-target.c3-focused path.c3-line, .c3-target.c3-focused path.c3-step {
+    stroke-width: 2px;
+}
+.c3-target.c3-defocused {
+    opacity: 0.3 !important;
+}
+/*-- Region --*/
+ .c3-region {
+    fill: steelblue;
+    fill-opacity: .1;
+}
+/*-- Brush --*/
+ .c3-brush .extent {
+    fill-opacity: .1;
+}
+/*-- Select - Drag --*/
+ .c3-dragarea {
+}
+/*-- Legend --*/
+ .c3-legend-item {
+    font-size: 12px;
+}
+.c3-legend-item-hidden {
+    opacity: 0.15;
+}
+.c3-legend-background {
+    opacity: 0.75;
+    fill: white;
+    stroke: lightgray;
+    stroke-width: 1
+}
+/*-- Tooltip --*/
+ .c3-tooltip-container {
+    z-index: 10;
+}
+.c3-tooltip {
+    border-collapse:collapse;
+    border-spacing:0;
+    background-color:#fff;
+    empty-cells:show;
+    -webkit-box-shadow: 7px 7px 12px -9px rgb(119, 119, 119);
+    -moz-box-shadow: 7px 7px 12px -9px rgb(119, 119, 119);
+    box-shadow: 7px 7px 12px -9px rgb(119, 119, 119);
+    opacity: 0.9;
+}
+.c3-tooltip tr {
+    border:1px solid #CCC;
+}
+.c3-tooltip th {
+    background-color: #aaa;
+    font-size:14px;
+    padding:2px 5px;
+    text-align:left;
+    color:#FFF;
+}
+.c3-tooltip td {
+    font-size:13px;
+    padding: 3px 6px;
+    background-color:#fff;
+    border-left:1px dotted #999;
+}
+.c3-tooltip td > span {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin-right: 6px;
+}
+.c3-tooltip td.value {
+    text-align: right;
+}
+.c3-area {
+    stroke-width: 0;
+    opacity: 0.2;
+}
+.c3-chart-arcs .c3-chart-arcs-background {
+    fill: #e0e0e0;
+    stroke: none;
+}
+.c3-chart-arcs .c3-chart-arcs-gauge-unit {
+    fill: #000;
+    font-size: 16px;
+}
+.c3-chart-arcs .c3-chart-arcs-gauge-max {
+    fill: #777;
+}
+.c3-chart-arcs .c3-chart-arcs-gauge-min {
+    fill: #777;
+}
+.c3-chart-arc .c3-gauge-value {
+    fill: #000;
+    /*  font-size: 28px !important;*/
+}
+
+
+
+/*** Table Styles **/
+
+.table-fill {
+  background: white;
+  border-radius:3px;
+  border-collapse: collapse;
+  height: auto;
+  margin: auto;
+  max-width: 90%;
+  padding:5px;
+  width: 100%;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+  animation: float 5s infinite;
+}
+
+th {
+  color:#D5DDE5;;
+  background:#1b1e24;
+  border-bottom:4px solid #9ea7af;
+  border-right: 1px solid #343a45;
+  font-size:18px;
+  font-weight: 100;
+  padding:24px;
+  text-align:left;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+  vertical-align:middle;
+}
+
+th:first-child {
+  border-top-left-radius:3px;
+}
+
+th:last-child {
+  border-top-right-radius:3px;
+  border-right:none;
+}
+
+tr {
+  border-top: 1px solid #C1C3D1;
+  border-bottom-: 1px solid #C1C3D1;
+  color:#666B85;
+  font-size:16px;
+  font-weight:normal;
+  text-shadow: 0 1px 1px rgba(256, 256, 256, 0.1);
+}
+
+tr:hover td {
+  background:#4E5066;
+  color:#FFFFFF;
+  border-top: 1px solid #22262e;
+  border-bottom: 1px solid #22262e;
+}
+
+tr:first-child {
+  border-top:none;
+}
+
+tr:last-child {
+  border-bottom:none;
+}
+
+tr:nth-child(odd) td {
+  background:#EBEBEB;
+}
+
+tr:nth-child(odd):hover td {
+  background:#4E5066;
+}
+
+tr:last-child td:first-child {
+  border-bottom-left-radius:3px;
+}
+
+tr:last-child td:last-child {
+  border-bottom-right-radius:3px;
+}
+
+td {
+  background:#FFFFFF;
+  padding:20px;
+  text-align:left;
+  vertical-align:middle;
+  font-weight:300;
+  font-size:14px;
+  text-shadow: -1px -1px 1px rgba(0, 0, 0, 0.1);
+  border-right: 1px solid #C1C3D1;
+}
+
+td:last-child {
+  border-right: 0px;
+}
+
+th.text-left {
+  text-align: left;
+}
+
+th.text-center {
+  text-align: center;
+}
+
+th.text-right {
+  text-align: right;
+}
+
+td.text-left {
+  text-align: left;
+}
+
+td.text-center {
+  text-align: center;
+}
+
+td.text-right {
+  text-align: right;
+}
