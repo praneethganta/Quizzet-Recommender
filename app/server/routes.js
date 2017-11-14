@@ -6,7 +6,7 @@ var RE = require('./modules/recommendor');
 module.exports = function(app) {
 
 // Root login page redirects to home page if user already logged in else to the login page //
-	app.get('/login', function(req, res){
+	app.get('/', function(req, res){
 		res.render("form-login");/*
 			AM.manualLogin(req.cookies.user, req.cookies.pass, function(status, o){
 				if(status)
@@ -42,14 +42,8 @@ module.exports = function(app) {
         });*/
     });
 
-    app.get('/', function(req, res){
-        res.render("form-register");/*
-			AM.manualLogin(req.cookies.user, req.cookies.pass, function(status, o){
-				if(status)
-				res.redirect("/home");
-				else
-				res.render('form-login', {error : o});
-			});*/
+    app.get('/signup', function(req, res){
+        res.render("form-register");
     });
 
 };
