@@ -1,0 +1,34 @@
+select * from user_activity where activity like 'posted%';
+select * from user_activity where activity like 'post%';
+select * from user_activity where activity like 'post%';
+select * from user_activity;
+select * from user_activity;
+select * from user_activity where activity like 'post%';
+select * from user_activity where activity like 'post%';
+select * from user_activity where activity like '%post%';
+select * from user_activity;
+select * from user_activity where activity like 'clicked :  question :%';
+select * from user_activity where username = 'aaa' and activity like 'clicked :  question :%';
+select *from user_activity where username = 'aaa' and timestamp > '2017-09-11';
+select *from user_activity where username = 'aaa' and timestamp = '2017-09-11';
+select *from user_activity where username = 'aaa' and timestamp = '2017-09-21';
+select *from user_activity where username = 'aaa' and timestamp >'2017-09-21' and timestamp;
+select * from user_activity where activity like '%post%';
+select *from user_activity where username = 'aaa' and timestamp = '2017-09-21';
+\dt
+create table (username varchar(50), password varchar(50));
+create table user_details (username varchar(50), password varchar(50));
+create table user_complete_details (firstname varchar(20),lastname,sex varchar(7),topics_known,java_proficiency varchar(20),professional_experience varchar(20),academic_experience varchar(20),age integer,highest_education_level_completed varachar(20),university varchar(50),university_location varchar(20));
+create table user_complete_details (firstname varchar(20),lastname varchar(20),sex varchar(7),topics_known,java_proficiency varchar(20),professional_experience varchar(20),academic_experience varchar(20),age integer,highest_education_level_completed varachar(20),university varchar(50),university_location varchar(20));
+create table user_complete_details (firstname varchar(20),lastname varchar(20),sex varchar(7),topics_known varchar(50),java_proficiency varchar(20),professional_experience varchar(20),academic_experience varchar(20),age integer,highest_education_level_completed varachar(20),university varchar(50),university_location varchar(20));
+create table user_complete_details (firstname varchar(20),lastname varchar(20),sex varchar(7),topics_known varchar(50),java_proficiency varchar(20),professional_experience varchar(20),academic_experience varchar(20),age integer,highest_education_level_completed varchar(20),university varchar(50),university_location varchar(20));
+create table question_and_answer (question varchar,course_topic varchar(20),choice_a varchar(50),choice_b varchar(50),choice_c varchar(50), choice_d varchar(50),choice_e varchar(50),num_choices integer,answer_level varchar(20));
+\dt
+\dt+ user_details
+\dt user_details
+\l user_details
+\t user_details
+\dt user_details
+\dt+ user_details
+\h user_details
+\s user_details

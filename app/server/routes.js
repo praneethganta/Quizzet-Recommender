@@ -7,14 +7,35 @@ module.exports = function(app) {
 
 // Root login page redirects to home page if user already logged in else to the login page //
 	app.get('/', function(req, res){
-		res.render("form-login");/*
-			AM.manualLogin(req.cookies.user, req.cookies.pass, function(status, o){
-				if(status)
-				res.redirect("/home");
-				else
-				res.render('form-login', {error : o});
-			});*/
+        if (req.session.loggedin == null || req.session.loggedin == false){
+            res.render("form-login",{error:""})
+        }
+        else {
+           res.redirect("/home");
+        }
 	});
+
+    app.post('/login', function(req, res){
+        if (req.session.loggedin == null || req.session.loggedin == false){
+            AM.manualLogin(req.body.username, req.body.password, function(status, o){
+                if(status) {
+                    req.session.loggedin = true;
+                    res.redirect("/home");
+                }
+                else {
+                    res.render('form-login', {error : o});
+                }
+            });
+        }
+        else {
+            if(req.session.loggedin == true) {
+                res.redirect("/home");
+            }
+            else {
+                res.render("form-login",{error:"Please login again"})
+            }
+        }
+    });
 
 // Logs in the user on based on the username and password entered or already logged in users are redirected to home page //
 
