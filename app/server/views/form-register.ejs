@@ -50,8 +50,8 @@
                         }
 
                     </script>
-                    <form role="form" action="/signup" method="post">
-                        <fieldset>
+                    <form role="form" id="signupForm" action="/signup" method="post">
+                        <fieldset form="signupForm">
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
@@ -90,7 +90,7 @@
 
                             <div class="form-group">
                                 <label for="gender">Gender <span class="required-asterisk">*</span></label>
-                                <select class="form-control" id="gender" required>
+                                <select class="form-control" id="gender" name="gender" required>
                                     <option disabled selected value> -- Select an option -- </option>
                                     <option>Male</option>
                                     <option>Female</option>
@@ -105,7 +105,7 @@
 
                             <div class="form-group">
                                 <label for="javaProficiency">Proficiency in Java <span class="required-asterisk">*</span></label>
-                                <select class="form-control" id="javaProficiency" required>
+                                <select class="form-control" id="javaProficiency" name="javaProficiency" required>
                                     <option disabled selected value> -- Select an option -- </option>
                                     <option>Beginner</option>
                                     <option>Intermediate</option>
@@ -115,7 +115,7 @@
 
                             <div class="form-group">
                                 <label for="knownTopics">Topics Known in Java <span class="required-asterisk">*</span></label>
-                                <select multiple class="form-control" id="knownTopics" required>
+                                <select multiple class="form-control" id="knownTopics" name="knownTopics" required>
                                     <option value="Arrays">Arrays</option>
                                     <option value="2D_Arrays">2D Arrays</option>
                                     <option value="Arithmetics">Arithmetic</option>
@@ -141,7 +141,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="academicExperience">Academic Experience <span class="required-asterisk">*</span></label>
-                                        <select class="form-control" id="academicExperience" required>
+                                        <select class="form-control" id="academicExperience" name="academicExperience" required>
                                             <option disabled selected value> -- Select an option -- </option>
                                             <option>0 - 2 years</option>
                                             <option>2 - 6 years</option>
@@ -152,7 +152,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="professionalExperience">Professional Experience <span class="required-asterisk">*</span></label>
-                                        <select class="form-control" id="professionalExperience" required>
+                                        <select class="form-control" id="professionalExperience" name="professionalExperience" required>
                                             <option disabled selected value> -- Select an option -- </option>
                                             <option>0 - 2 years</option>
                                             <option>2 - 6 years</option>
@@ -164,7 +164,7 @@
 
                             <div class="form-group">
                                 <label for="educationLevel">Highest Level of Education Completed <span class="required-asterisk">*</span></label>
-                                <select class="form-control" id="educationLevel" required>
+                                <select class="form-control" id="educationLevel" name="educationLevel" required>
                                     <option disabled selected value> -- Select an option -- </option>
                                     <option>High School Graduate</option>
                                     <option>Associate Degree</option>
