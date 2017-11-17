@@ -18,6 +18,12 @@
     <!-- Custom Fonts -->
     <link href="css/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
 
+    <style>
+        .required-asterisk {
+            color: red;
+        }
+    </style>
+
 </head>
 
 <body>
@@ -27,49 +33,51 @@
         <div class="col-md-6 col-md-offset-3">
             <div class="login-panel panel panel-default">
                 <div class="panel-heading">
-                    <h3 class="panel-title">Sign Up</h3>
+                    <h3 class="panel-title"><strong>Sign Up</strong></h3>
                 </div>
                 <div class="panel-body">
-                    <form role="form">
+                    <form role="form" action="/signup" method="post">
                         <fieldset>
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="firstName">First Name</label>
-                                        <input class="form-control" id="firstName" placeholder="John" name="firstName" type="text" autofocus>
+                                        <label for="firstName">First Name <span class="required-asterisk">*</span></label>
+                                        <input class="form-control" id="firstName" placeholder="John" name="firstName" type="text" autofocus required>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="lastName">Last Name</label>
-                                        <input class="form-control" id="lastName" placeholder="Wick" name="lastName" type="text">
+                                        <label for="lastName">Last Name <span class="required-asterisk">*</span></label>
+                                        <input class="form-control" id="lastName" placeholder="Wick" name="lastName" type="text" required>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="form-group">
-                                <label for="username">Username</label>
-                                <input class="form-control" id="username" placeholder="boogieman123" name="username" type="text">
+                                <label for="username">Username <span class="required-asterisk">*</span></label>
+                                <input class="form-control" id="username" placeholder="boogieman123" name="username" type="text" required>
                             </div>
 
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="password">Password</label>
-                                        <input class="form-control" id="password" placeholder="******" name="password" type="password" value="">
+                                        <label for="password">Password <span class="required-asterisk">*</span></label>
+                                        <input class="form-control" id="password" placeholder="******" name="password" type="password" value="" required>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="password2">Re-Enter Password</label>
-                                        <input class="form-control" id="password2" placeholder="******" name="password2" type="password" value="">
+                                        <label for="password2">Re-Enter Password <span class="required-asterisk">*</span></label>
+                                        <input class="form-control" id="password2" placeholder="******" name="password2" type="password" value="" required>
+                                        <h5 id="passwordMismatch"></h5>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="form-group">
-                                <label for="gender">Gender</label>
-                                <select class="form-control" id="gender">
+                                <label for="gender">Gender <span class="required-asterisk">*</span></label>
+                                <select class="form-control" id="gender" required>
+                                    <option disabled selected value> -- Select an option -- </option>
                                     <option>Male</option>
                                     <option>Female</option>
                                     <option>Other</option>
@@ -77,13 +85,14 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="age">Age</label>
-                                <input class="form-control" id="age" placeholder="18" name="age" type="number" min="10" max="100">
+                                <label for="age">Age <span class="required-asterisk">*</span></label>
+                                <input class="form-control" id="age" placeholder="18" name="age" type="number" min="10" max="100" required>
                             </div>
 
                             <div class="form-group">
-                                <label for="javaProficiency">Proficiency in Java</label>
-                                <select class="form-control" id="javaProficiency">
+                                <label for="javaProficiency">Proficiency in Java <span class="required-asterisk">*</span></label>
+                                <select class="form-control" id="javaProficiency" required>
+                                    <option disabled selected value> -- Select an option -- </option>
                                     <option>Beginner</option>
                                     <option>Intermediate</option>
                                     <option>Advanced</option>
@@ -91,33 +100,35 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="knownTopics">Topics Known in Java</label>
-                                <select multiple class="form-control" id="knownTopics">
-                                    <option>Arrays</option>
-                                    <option>2D Arrays</option>
-                                    <option>Arithmetic</option>
-                                    <option>Classes</option>
-                                    <option>Constructor</option>
-                                    <option>Control</option>
-                                    <option>Data Types</option>
-                                    <option>Decisions</option>
-                                    <option>Expressions</option>
-                                    <option>Input-Output</option>
-                                    <option>Loops</option>
-                                    <option>Methods</option>
-                                    <option>Objects</option>
-                                    <option>Operators</option>
-                                    <option>Primitive Data Types</option>
-                                    <option>Strings</option>
-                                    <option>Variables</option>
+                                <label for="knownTopics">Topics Known in Java <span class="required-asterisk">*</span></label>
+                                <select multiple class="form-control" id="knownTopics" required>
+                                    <option value="Arrays">Arrays</option>
+                                    <option value="2D_Arrays">2D Arrays</option>
+                                    <option value="Arithmetics">Arithmetic</option>
+                                    <option value="Classes">Classes</option>
+                                    <option value="Constructor">Constructor</option>
+                                    <option value="Control">Control</option>
+                                    <option value="DataType">Data Types</option>
+                                    <option value="Decisions">Decisions</option>
+                                    <option value="Expression">Expressions</option>
+                                    <option value="InputOutput">Input-Output</option>
+                                    <option value="Java">Java Basics</option>
+                                    <option value="Loops">Loops</option>
+                                    <option value="Method">Methods</option>
+                                    <option value="Objects">Objects</option>
+                                    <option value="Operator">Operators</option>
+                                    <option value="Primitive Data Type">Primitive Data Types</option>
+                                    <option value="Strings">Strings</option>
+                                    <option value="Variables">Variables</option>
                                 </select>
                             </div>
 
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="academicExperience">Academic Exp.</label>
-                                        <select class="form-control" id="academicExperience">
+                                        <label for="academicExperience">Academic Experience <span class="required-asterisk">*</span></label>
+                                        <select class="form-control" id="academicExperience" required>
+                                            <option disabled selected value> -- Select an option -- </option>
                                             <option>0 - 2 years</option>
                                             <option>2 - 6 years</option>
                                             <option>6+ years</option>
@@ -126,8 +137,9 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="professionalExperience">Professional Exp.</label>
-                                        <select class="form-control" id="professionalExperience">
+                                        <label for="professionalExperience">Professional Experience <span class="required-asterisk">*</span></label>
+                                        <select class="form-control" id="professionalExperience" required>
+                                            <option disabled selected value> -- Select an option -- </option>
                                             <option>0 - 2 years</option>
                                             <option>2 - 6 years</option>
                                             <option>6+ years</option>
@@ -137,8 +149,9 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="educationLevel">Highest Level of Education Completed</label>
-                                <select class="form-control" id="educationLevel">
+                                <label for="educationLevel">Highest Level of Education Completed <span class="required-asterisk">*</span></label>
+                                <select class="form-control" id="educationLevel" required>
+                                    <option disabled selected value> -- Select an option -- </option>
                                     <option>High School Graduate</option>
                                     <option>Associate Degree</option>
                                     <option>Bachelor's Degree</option>
@@ -149,14 +162,14 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="universityName">Current University</label>
-                                        <input class="form-control" id="universityName" placeholder="Arizona State University" name="universityName" type="text">
+                                        <label for="universityName">Current University <span class="required-asterisk">*</span></label>
+                                        <input class="form-control" id="universityName" placeholder="Arizona State University" name="universityName" type="text" required>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="universityLocation">University Location</label>
-                                        <input class="form-control" id="universityLocation" placeholder="Tempe, AZ" name="universityLocation" type="text">
+                                        <label for="universityLocation">University Location <span class="required-asterisk">*</span></label>
+                                        <input class="form-control" id="universityLocation" placeholder="Tempe, AZ" name="universityLocation" type="text" required>
                                     </div>
                                 </div>
                             </div>
@@ -164,9 +177,14 @@
                             <button type="submit" class="btn btn-lg btn-success btn-block">Signup</button>
                         </fieldset>
                     </form>
+
+                    <br/>
+                    <div class="alert alert-danger text-center" role="alert">
+                        <%= error %>
+                    </div>
                 </div>
                 <div class="panel-heading">
-                    <p class="panel-title">Already have an account? <a href="/">Login</a></p>
+                    <p class="panel-title">Already have an account? <a href="/" style="color: lightseagreen">Login</a></p>
                 </div>
             </div>
         </div>
@@ -177,10 +195,32 @@
 <script src="js/vendor/jquery.min.js"></script>
 <!-- Bootstrap Core JavaScript -->
 <script src="js/vendor/bootstrap.min.js"></script>
-<!-- Metis Menu Plugin JavaScript -->
-<script src="../vendor/metisMenu/metisMenu.min.js"></script>
-<!-- Custom Theme JavaScript -->
-<script src="js/sb-admin-2.js"></script>
+
+<script>
+    var error = <%- JSON.stringify(error) %>;
+    $("document").ready(function () {
+        var passwordMatch = false;
+        $('#password, #password2').on('keyup', function () {
+            if ($('#password').val() === $('#password2').val()) {
+                $('#passwordMismatch').html('Passwords match!').css('color', 'green');
+                passwordMatch = true;
+            } else {
+                $('#passwordMismatch').html('Passwords do not match!').css('color', 'red');
+                passwordMatch = false;
+            }
+        });
+
+        $('form').on('submit', function () {
+            return passwordMatch;
+        });
+
+        if (error !== "") {
+            $(".alert").attr("hidden", false);
+        } else {
+            $(".alert").attr("hidden", true);
+        }
+    });
+</script>
 
 </body>
 

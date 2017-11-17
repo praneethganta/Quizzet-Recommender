@@ -13,10 +13,8 @@
 
     <!-- Bootstrap Core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
-
     <!-- MetisMenu CSS -->
     <link href="css/metisMenu.min.css" rel="stylesheet">
-
     <!-- Custom CSS -->
     <link href="css/sb-admin-2.css" rel="stylesheet">
     <!-- Custom Fonts -->
@@ -25,7 +23,27 @@
 </head>
 
 <body>
+<script type="text/javascript" src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
+<script>
 
+    var answer = <%- JSON.stringify(correct) %>;
+    function checkAnswer()
+    {
+        var choice = $('input[type=radio]:checked', '#myForm').val();
+
+        document.getElementById("noshow").style.visibility = "visible";
+        answerId = answer.substring(6,7).charCodeAt(0)-64;
+        if (parseInt(choice) == answerId ){
+               document.getElementById("result").innerText = "You got it right !!!";
+        }
+        else{
+            var txt = document.getElementById("optionsRadios"+answerId).innerHTML;
+            document.getElementById("result").innerText ="Sorry, the right answer is:   ("+ (answer.substring(6,7).charCodeAt(0)-64)+") "+ txt ;
+        }
+
+    }
+
+</script>
 <div id="wrapper">
 
     <!-- Navigation -->
@@ -235,21 +253,88 @@
     <div id="page-wrapper">
 
     <!-- /#page-wrapper - WRITE CONTENT HERE -->
+        <div class="container-fluid">
+            <!-- Breadcrumbs-->
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="#">Quizzes</a>
+                </li>
+                <li class="breadcrumb-item active">Quiz 1</li>
+            </ol>
+
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-header">
+                <i class="fa fa-bell-o"></i> Question :   </div>
+            <div class="list-group list-group-flush small">
+                <a class="list-group-item list-group-item-action" href="#">
+                    <div class="media">
+
+                        <div class="media-body">
+                            <strong><h3><%- question%></h3></strong>
+                            <div class="text-muted smaller">Choose your answer from the options below: </div>
+                        </div>
+                    </div>
+                </a>
+
+
+                <form role="form" id ="myForm" action="/home" method="get">
+                    <fieldset>
+                        <% var i=1;
+                           while(i<=num_choices){ %>
+                           <a class="list-group-item list-group-item-action" href="#">
+                               <div class="media">
+                                   <div class="media-body">
+                                       <div class="radio">
+                                           <label>
+                                               <h4>
+
+                                           <input type="radio" class="optionsRadios" name="radAnswer" value=<%= i%>    >
+                                             <% if(i==1) {%><p id=<%= "optionsRadios"+i%>><%- choice1 %></p>  <%}
+                                                else if(i==2) {%><p id=<%= "optionsRadios"+i%>><%- choice2 %></p> <%}
+                                                else if(i==3) {%><p id=<%= "optionsRadios"+i%>><%- choice3 %></p>  <%}
+                                                else if(i==4) {%> <p id=<%= "optionsRadios"+i%>><%- choice4 %></p>  <%}
+                                                else if(i==5) {%> <p id=<%= "optionsRadios"+i%>><%- choice5 %></p>  <%}%>
+                                               </h4>
+                                           </label>
+                                       </div>
+
+                                       </div>
+                                   </div>
+
+                           </a>
+                        <%i++;   }%>
+                        <div class="form-group" style="float:left; width:25%">
+                            <button type="button" class="btn btn-success " onclick="checkAnswer()">Submit</button>
+                        </div>
+                        <div class="form-group" style="float:right">
+                            <button type="submit" class="btn btn-success" id="nextQuestion">Next Question >> </button>
+                        </div>
+                    </fieldset>
+                </form>
+                <a id="noshow" class="list-group-item list-group-item-action" href="#" style="visibility: hidden" >
+                    <div class="media">
+
+                        <div class="media-body">
+                            <strong><h3>Result: </h3></strong>
+                            <div ><h4>
+                            <p id="result"> </p></h4></div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
     </div>
+
 
 </div>
 <!-- /#wrapper -->
 
 <!-- jQuery -->
 <script src="js/vendor/jquery.min.js"></script>
-
 <!-- Bootstrap Core JavaScript -->
 <script src="js/vendor/bootstrap.min.js"></script>
-
-<!-- Metis Menu Plugin JavaScript -->
-<script src="../vendor/metisMenu/metisMenu.min.js"></script>
-<!-- Custom Theme JavaScript -->
-<script src="js/sb-admin-2.js"></script>
 
 </body>
 

@@ -32,7 +32,7 @@ module.exports = function(app) {
                 res.redirect("/home");
             }
             else {
-                res.render("form-login",{error:"Please login again"})
+                res.render("form-login", {error : "Please login again"})
             }
         }
     });
@@ -40,11 +40,26 @@ module.exports = function(app) {
 // Logs in the user on based on the username and password entered or already logged in users are redirected to home page //
 
 	app.get('/home', function(req, res){
-
-	    res.render("home")
 	    /*
 		AM.manualLogin(req.body['username'], req.body['password'], function(e, o){
         });*/
+        question_id=Math.floor(Math.random() * 101);
+        AM.displayQuestion(question_id, function(status, result){
+            if(status){
+                res.render('home.ejs', {
+                    question: result.question,
+                    num_choices: result.num_choices,
+                    choice1 : result.choice_a,
+                    choice2 : result.choice_b,
+                    choice3 : result.choice_c,
+                    choice4 : result.choice_d,
+                    choice5 : result.choice_e,
+                    correct : result.answer
+
+                });
+                console.log(result.answer);
+            }
+        });
 	});
 
     app.get('/userProfile', function(req, res){
@@ -55,9 +70,19 @@ module.exports = function(app) {
         });*/
     });
 
-    app.get('/quiz', function(req, res){
+    app.post('/quiz', function(req, res){
 
         res.render("home")
+        /*
+        AM.manualLogin(req.body['username'], req.body['password'], function(e, o){
+        });*/
+
+
+    });
+
+    app.get('/signup', function(req, res){
+
+        res.render("form-register", {error : ""});
         /*
         AM.manualLogin(req.body['username'], req.body['password'], function(e, o){
         });*/

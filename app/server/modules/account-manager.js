@@ -37,3 +37,17 @@ exports.manualLogin = function (user, pass, callback) {
 
 exports.updateActivity = function (user, activity, callback) {
 }
+
+exports.displayQuestion = function(questionId, callback){
+
+    client.query("SELECT * from question_and_answer where question_id =$1", [questionId], (err,result) =>{
+        if (result.rows.length == 1) {
+                callback(true, //JSON.stringify(result.rows[0]));
+                                     result.rows[0]);
+        }
+        else {
+            callback(false, "Invalid Question Id");
+        }
+    });
+
+}
