@@ -40,9 +40,15 @@ exports.signup = function (userDetails, callback) {
                 if (err) {
                     callback(false, "An unexpected error has occurred! Please try again.");
                 }
-                // add user to user_details
+                client.query("INSERT INTO user_details VALUES ($1 , $2)", [user, hash], (err, result) => {
+                    if (err) {
+                        callback(false, err);
+                    }
+                    else {
+                        callback(true, "Signup complete");                    }
+
+                });
             });
-            callback(true, "Signup complete");
         }
     })
 };

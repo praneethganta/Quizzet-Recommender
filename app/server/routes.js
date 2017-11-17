@@ -46,7 +46,7 @@ module.exports = function(app) {
             console.log(req.body);
             AM.signup(req.body, function(status, o){
                 if (status) {
-                    res.redirect('/');
+                    res.render('form-register', {error : o});
                 }
                 else {
                     res.render('form-register', {error : o});
@@ -97,9 +97,15 @@ module.exports = function(app) {
         }
     });
 
-    app.post('/quiz', function(req, res){
-        res.render('home');
+    app.get('/leaderboard', function(req, res){
+        res.render('leaderboard');
     });
+
+    app.get('/history', function(req, res){
+        res.render('history');
+    });
+
+
 
     app.get('/logout', function(req, res){
         if (req.session.loggedin === true) {

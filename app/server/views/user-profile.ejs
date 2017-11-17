@@ -187,12 +187,12 @@
                     <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
                 </a>
                 <ul class="dropdown-menu dropdown-user">
-                    <li><a href="#"><i class="fa fa-user fa-fw"></i> User Profile</a>
+                    <li><a href="/userProfile"><i class="fa fa-user fa-fw"></i> User Profile</a>
                     </li>
                     <li><a href="#"><i class="fa fa-gear fa-fw"></i> Settings</a>
                     </li>
                     <li class="divider"></li>
-                    <li><a href="/"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
+                    <li><a href="/logout"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
                     </li>
                 </ul>
                 <!-- /.dropdown-user -->
@@ -205,6 +205,7 @@
             <div class="sidebar-nav navbar-collapse">
                 <ul class="nav" id="side-menu">
                     <li class="sidebar-search">
+                        <label>Search student profiles here:</label>
                         <div class="input-group custom-search-form">
                             <input type="text" class="form-control" placeholder="Search...">
                             <span class="input-group-btn">
@@ -216,15 +217,15 @@
                         <!-- /input-group -->
                     </li>
                     <li>
-                        <a href="/quiz"><i class="fa fa-dashboard fa-fw"></i> Quizes</a>
-                    </li>
-                    <li>
-                        <a href="/user-profile"><i class="fa fa-table fa-fw"></i> User Profile</a>
-                    </li>
-                    <li>
                         <a href="/home"><i class="fa fa-edit fa-fw"></i> Home</a>
                     </li>
-                        </ul>
+                    <li>
+                        <a href="/history"><i class="fa fa-dashboard fa-fw"></i>History</a>
+                    </li>
+                    <li>
+                        <a href="/leaderboard"><i class="fa fa-table fa-fw"></i>Leaderboard</a>
+                    </li>
+                </ul>
                         <!-- /.nav-second-level -->
                     </li>
                 </ul>
@@ -382,10 +383,6 @@
 <!-- Bootstrap Core JavaScript -->
 <script src="js/vendor/bootstrap.min.js"></script>
 
-<!-- Metis Menu Plugin JavaScript -->
-<script src="../vendor/metisMenu/metisMenu.min.js"></script>
-<!-- Custom Theme JavaScript -->
-<script src="js/sb-admin-2.js"></script>
 
 </body>
 
