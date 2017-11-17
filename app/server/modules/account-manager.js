@@ -32,6 +32,18 @@ exports.manualLogin = function (user, pass, callback) {
 exports.signup = function (userDetails, callback) {
     var user = userDetails.username;
     var pass = userDetails.password;
+    var firstName = userDetails.firstName;
+    var lastName = userDetails.lastName;
+    var gender = userDetails.gender;
+    var age = userDetails.age;
+    var javaProficiency = userDetails.javaProficiency;
+    var knownTopics = userDetails.knownTopics.join();
+    var academicExperience = userDetails.academicExperience;
+    var professionalExperience = userDetails.professionalExperience;
+    var educationLevel = userDetails.educationLevel;
+    var universityName = userDetails.universityName;
+    var universityLocation = userDetails.universityLocation;
+
     client.query("SELECT * FROM user_details where username = $1", [user], (err, result) => {
         if (result.rows.length === 1) {
             callback(false, "Username is already taken. Please try again.");
@@ -45,7 +57,17 @@ exports.signup = function (userDetails, callback) {
                         callback(false, err);
                     }
                     else {
-                        callback(true, "Signup complete");                    }
+                        client.query("INSERT INTO user_complete_details VALUES ($1 , $2, $3, $4, $5, $6, $7, $8, $9, " +
+                            "$10, $11, $12)", [user, firstName, lastName, gender, knownTopics, javaProficiency,
+                        professionalExperience, academicExperience, age, educationLevel, universityName, universityLocation], (err, result) => {
+                            if (err){
+                                callback(false, err);
+                            }
+                            else {
+                                callback(true, "Signup complete");
+                            }
+                        });
+                    }
 
                 });
             });
