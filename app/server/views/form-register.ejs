@@ -36,6 +36,9 @@
                     <h3 class="panel-title"><strong>Sign Up</strong></h3>
                 </div>
                 <div class="panel-body">
+                    <div class="alert alert-danger text-center" role="alert">
+                        <%= error %>
+                    </div>
                     <form role="form" action="/signup" method="post">
                         <fieldset>
                             <div class="row">
@@ -177,11 +180,6 @@
                             <button type="submit" class="btn btn-lg btn-success btn-block">Signup</button>
                         </fieldset>
                     </form>
-
-                    <br/>
-                    <div class="alert alert-danger text-center" role="alert">
-                        <%= error %>
-                    </div>
                 </div>
                 <div class="panel-heading">
                     <p class="panel-title">Already have an account? <a href="/" style="color: lightseagreen">Login</a></p>

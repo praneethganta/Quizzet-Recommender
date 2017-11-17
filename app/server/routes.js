@@ -28,7 +28,35 @@ module.exports = function(app) {
             if(req.session.loggedin === true) {
                 res.redirect('/home');
             } else {
-                res.render('form-login', {error : 'Please login again'})
+                res.render('form-login', {error : 'Please login again.'})
+            }
+        }
+    });
+
+    app.get('/signup', function(req, res){
+        if (req.session.loggedin === undefined || req.session.loggedin === false){
+            res.render('form-register', {error : ''});
+        } else {
+            res.redirect('/home');
+        }
+    });
+
+    app.post('/signup', function(req, res){
+        if (req.session.loggedin === undefined || req.session.loggedin === false) {
+            console.log(req.body);
+            AM.signup(req.body, function(status, o){
+                if (status) {
+                    res.redirect('/');
+                }
+                else {
+                    res.render('form-register', {error : o});
+                }
+            });
+        } else {
+            if (req.session.loggedin === true) {
+                res.redirect('/home');
+            } else {
+                res.render('form-register', {error : 'Please register again.'})
             }
         }
     });
@@ -71,14 +99,6 @@ module.exports = function(app) {
 
     app.post('/quiz', function(req, res){
         res.render('home');
-    });
-
-    app.get('/signup', function(req, res){
-        if (req.session.loggedin === undefined || req.session.loggedin === false){
-            res.render('form-register', {error : ''});
-        } else {
-            res.redirect('/home');
-        }
     });
 
     app.get('/logout', function(req, res){
