@@ -2,6 +2,7 @@
 
 var AM = require('./modules/account-manager');
 var RE = require('./modules/recommendor');
+
 module.exports = function(app) {
 
 	app.get('/', function(req, res){
@@ -148,8 +149,6 @@ module.exports = function(app) {
         res.render('history');
     });
 
-
-
     app.get('/logout', function(req, res){
         if (req.session.loggedin === true) {
             req.session.username = null;
@@ -158,6 +157,29 @@ module.exports = function(app) {
             req.session.loggedin = false;
         }
         res.redirect('/');
+    });
+
+    app.post('/logActivity', function (req, res) {
+        if (req.session.loggedin === true) {
+            var activity = req.body;
+            AM.updateActivity(req.session.username, activity, function (status, result) {
+                if (status) {
+                    res.status(200).send();
+                }
+                console.log('/logActivity - ' + result);
+            });
+        }
+    });
+
+    app.post('/updateWeight', function (req, res) {
+        if (req.session.loggedin === true) {
+            AM.updateWeight(req.session.username, req.body.questionId, req.body.weight, function (status, result) {
+                if (status) {
+                    res.status(200).send();
+                }
+                console.log('/updateWeight - ' + result);
+            });
+        }
     });
 
 };

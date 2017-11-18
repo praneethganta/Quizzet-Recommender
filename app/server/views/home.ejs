@@ -36,25 +36,33 @@
 
 <script>
     var numAttempts = parseInt("<%= questionInfo.num_choices / 2 %>");
-    var answer = "<%= questionInfo.answer %>";
 
-    var questionId = parseInt("<%= questionInfo.question_id %>");
-    var topic = "<%= questionInfo.course_topic %>";
-    var level = "<%= questionInfo.level %>";
     var maxPoints = 0;
     var penalty = 0;
     var score = 0;
+    var weight = 0;
+    var weightUpdate = 0;
+    var level = "<%= questionInfo.level %>";
     if (level === "Easy") {
         maxPoints = 10;
         penalty = -15;
+        weight = 50;
     } else if (level === "Moderate") {
         maxPoints = 20;
         penalty = -10;
+        weight = 40;
     } else if (level === "Difficult") {
         maxPoints = 30;
         penalty = -5;
+        weight = 30;
     }
+
+    var question = "<%= question %>";
+    var questionId = parseInt("<%= questionInfo.question_id %>");
+    var answer = "<%= questionInfo.answer %>";
+    var topic = "<%= questionInfo.course_topic %>";
     var result = false;
+    var attemptsLeft = numAttempts;
 
     function checkAnswer() {
         var choice = $('input[type=radio]:checked', '#myForm').val();
@@ -65,6 +73,7 @@
         var nextQuestion = document.getElementById("nextQuestion");
         var resultElement = document.getElementById("result");
         resultElement.removeAttribute("hidden");
+
         if (parseInt(choice) === answerId){
             alertElement.innerText = "Right answer!!! Please proceed to the next question.";
             resultElement.classList.remove("alert-danger");
@@ -73,10 +82,18 @@
             nextQuestion.removeAttribute("disabled");
             result = true;
             score = maxPoints;
+            weightUpdate = weight / (numAttempts - attemptsLeft);
+
+            var http = new XMLHttpRequest();
+            var url = "/updateWeight";
+            var data = JSON.stringify({questionId: questionId, weight: weightUpdate});
+            http.open("POST", url);
+            http.setRequestHeader("Content-Type", "application/json");
+            http.send(data);
         } else {
-            numAttempts -= 1;
+            attemptsLeft -= 1;
             score = penalty;
-            if (!numAttempts) {
+            if (!attemptsLeft) {
                 alertElement.innerText = "You've run out of attempts for this question! Please proceed to the next question.";
                 resultElement.classList.remove("alert-success");
                 resultElement.classList.add("alert-danger");
@@ -89,7 +106,12 @@
             }
         }
 
-        console.log(questionId, score, result, topic);
+        var http = new XMLHttpRequest();
+        var url = "/logActivity";
+        var data = JSON.stringify({question: question, topic: topic, result: result, score: score});
+        http.open("POST", url);
+        http.setRequestHeader("Content-Type", "application/json");
+        http.send(data);
     }
 
     $(document).ready(function () {
