@@ -1,4 +1,8 @@
-$(document).ready(function(){
+
+
+
+
+/*$(document).ready(function(){
   load_charts();
 });
 
@@ -22,7 +26,7 @@ function load_charts(){
         data_scatter[3][i] = Number(data_scatter[3][i])
         }
        //scatter_plot(data_scatter, 'scatterplot', 'customer score', 'agent score');
-*/
+
 var xhrWords = new XMLHttpRequest();
 xhrWords.onreadystatechange = function() {
     if (xhrWords.readyState == 4) {
@@ -242,7 +246,7 @@ function scatter_plot(data, bind, x_label, y_label) {
                 return value + "</br>" + data[1][index + 1];
              }
         }
-        }*/
+        }
         tooltip: {
         contents: function (d, defaultTitleFormat, defaultValueFormat, color) {
           // console.log(data[0][d[0].index + 1] + " " + data[1][d[0].index + 1])
@@ -252,3 +256,4 @@ function scatter_plot(data, bind, x_label, y_label) {
     }
     });
 }
+*/

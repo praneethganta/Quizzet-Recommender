@@ -206,7 +206,7 @@
                 <ul class="dropdown-menu dropdown-user">
                     <li><a href="userProfile"><i class="fa fa-user fa-fw"></i> User Profile</a>
                     </li>
-                    <li><a href="#"><i class="fa fa-gear fa-fw"></i> Settings</a>
+                    <li><a href="/settings"><i class="fa fa-gear fa-fw"></i> Settings</a>
                     </li>
                     <li class="divider"></li>
                     <li><a href="/logout"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
@@ -221,6 +221,27 @@
         <div class="navbar-default sidebar" role="navigation">
             <div class="sidebar-nav navbar-collapse">
                 <ul class="nav" id="side-menu">
+                    <li>
+                        <div class="profile clearfix">
+                            <div class="profile_pic">
+                                <img src="images/male.png" alt="..." style="padding-left: 25px;" id ="avatar">
+                            </div>
+                            <div class="profile_info">
+                                    <h3 id="fullname" style="padding-left: 5px; padding-right: 5px; text-align: center;"></h3>
+                            </div>
+                            <script>
+                                var fullname = <%- JSON.stringify(fullname) %>;
+                                var gender = <%- JSON.stringify(gender) %>;
+                                if (gender == "Male") {
+                                    document.getElementById("avatar").src = "images/male.png";
+                                }
+                                else {
+                                    document.getElementById("avatar").src = "images/female.png";
+                                }
+                                document.getElementById("fullname").innerText = "Welcome, " + fullname;
+                            </script>
+                        </div>
+                    </li>
                     <li>
                         <a href="/home"><i class="fa fa-edit fa-fw"></i> Home</a>
                     </li>
