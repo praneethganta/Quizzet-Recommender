@@ -65,25 +65,18 @@ module.exports = function(app) {
         if (req.session.loggedin === undefined || req.session.loggedin === false){
             res.redirect('/');
         } else {
-            question_id=Math.floor(Math.random() * 101);
+            var question_id = Math.floor(Math.random() * 101);
             AM.displayQuestion(question_id, function (status, result) {
-                var question = result.question.trim();
-                if (question[0] === '"') {
-                    question = question.substring(1, question.length - 1);
-                }
                 if (status) {
-                    res.render('home.ejs', {
-                        question: question,
-                        num_choices: result.num_choices,
-                        choice1 : result.choice_a,
-                        choice2 : result.choice_b,
-                        choice3 : result.choice_c,
-                        choice4 : result.choice_d,
-                        choice5 : result.choice_e,
-                        correct : result.answer
+                    var question = result.question.trim();
+                    if (question[0] === '"') {
+                        question = question.substring(1, question.length - 1);
+                    }
 
+                    res.render('home.ejs', {
+                        questionInfo: result,
+                        question: question
                     });
-                    console.log(result.answer);
                 }
             });
         }
