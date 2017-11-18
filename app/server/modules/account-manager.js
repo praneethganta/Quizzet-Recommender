@@ -10,11 +10,25 @@ const client = new Client({
 });
 client.connect();
 
+
 const bcrypt = require('bcrypt');
+
+exports.getUserDetails = function(user, callback) {
+    client.query("select *from user_details a, user_complete_details b where a.username = $1 and b.username = $2", [user,user], (err, result) => {
+        if (err) {
+            callback(false, "Something went wrong please login again.");
+        }
+        else {
+            callback(true, result.rows[0]);
+        }
+    });
+
+};
 
 exports.manualLogin = function (user, pass, callback) {
     client.query("SELECT * FROM user_details where username = $1", [user], (err, result) => {
         if (result.rows.length === 1) {
+            username = user;
             var password = result.rows[0].password;
             bcrypt.compare(pass, password, function(err, res) {
                 if (res) {
@@ -37,7 +51,12 @@ exports.signup = function (userDetails, callback) {
     var gender = userDetails.gender;
     var age = userDetails.age;
     var javaProficiency = userDetails.javaProficiency;
-    var knownTopics = userDetails.knownTopics.join();
+    if (typeof(userDetails.knownTopics) == 'string'){
+        var knownTopics = userDetails.knownTopics
+    }
+    else{
+        var knownTopics = userDetails.knownTopics.join();
+    }
     var academicExperience = userDetails.academicExperience;
     var professionalExperience = userDetails.professionalExperience;
     var educationLevel = userDetails.educationLevel;
@@ -87,4 +106,33 @@ exports.displayQuestion = function (questionId, callback) {
             callback(false, "Invalid Question Id.");
         }
     })
+};
+
+exports.createWeightsTable = function (user, callback) {
+    if (user.indexOf('.')>-1){
+        user.replace('.','_');
+    }
+
+    var tablename =  user + "_question_weights";
+    var queryString = "CREATE TABLE "+ tablename + "(question_id integer, course_topic text, level text, weight integer);";
+
+    client.query(queryString, (err,result) =>{
+        if (err) {
+            callback(false, err);
+        }
+        else{
+            var query = "INSERT INTO "+ tablename + " SELECT question_id, course_topic, level, weight from dummy_question_weights;"
+            client.query(query, (errr,result) => {
+                if (errr) {
+                callback(false, errr);
+
+            } else
+            {
+                callback(true,"Created Successfully!" );
+            }
+        });
+    }
+
+    });
+
 };
