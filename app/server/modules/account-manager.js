@@ -88,3 +88,32 @@ exports.displayQuestion = function (questionId, callback) {
         }
     })
 };
+
+exports.createWeightsTable = function (user, callback) {
+    if (user.indexOf('.')>-1){
+        user.replace('.','_');
+    }
+
+    var tablename =  user + "_question_weights";
+    var queryString = "CREATE TABLE "+ tablename + "(question_id integer, course_topic text, level text, weight integer);";
+
+    client.query(queryString, (err,result) =>{
+        if (err) {
+            callback(false, err);
+        }
+        else{
+            var query = "INSERT INTO "+ tablename + " SELECT question_id, course_topic, level, weight from dummy_question_weights;"
+            client.query(query, (errr,result) => {
+                if (errr) {
+                callback(false, errr);
+
+            } else
+            {
+                callback(true,"Created Successfully!" );
+            }
+        });
+    }
+
+    });
+
+};

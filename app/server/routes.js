@@ -37,6 +37,7 @@ module.exports = function(app) {
         if (req.session.loggedin === undefined || req.session.loggedin === false){
             res.render('form-register', {error : ''});
         } else {
+
             res.redirect('/home');
         }
     });
@@ -46,6 +47,14 @@ module.exports = function(app) {
             console.log(req.body);
             AM.signup(req.body, function(status, o){
                 if (status) {
+                    AM.createWeightsTable(req.body.username, function(status, o){
+                        if(status){
+                            console.log(o);
+                        }
+                        else{
+                            console.log(o);
+                        }
+                    });
                     res.render('form-register', {error : o});
                 }
                 else {
@@ -55,6 +64,7 @@ module.exports = function(app) {
         } else {
             if (req.session.loggedin === true) {
                 res.redirect('/home');
+
             } else {
                 res.render('form-register', {error : 'Please register again.'})
             }
