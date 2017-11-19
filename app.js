@@ -10,14 +10,14 @@ var express = require('express');
 var session = require('express-session');
 var bodyParser = require('body-parser');
 var errorHandler = require('errorhandler');
-// var cookieParser = require('cookie-parser');
+var morgan       = require('morgan');
 var app = express();
 
+app.use(morgan('dev'));
 app.locals.pretty = true;
 app.set('port', process.env.PORT || 8000);
 app.set('views', __dirname + '/app/server/views');
 app.set('view engine', 'ejs');
-// app.use(cookieParser());
 app.use(session({
     secret: 'quizzit',
     resave: true,

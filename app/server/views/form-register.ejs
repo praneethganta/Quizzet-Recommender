@@ -22,6 +22,11 @@
         .required-asterisk {
             color: red;
         }
+
+        i {
+            font-size: 10px;
+            ;
+        }
     </style>
 
 </head>
@@ -67,8 +72,9 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="username">Username <span class="required-asterisk">*</span></label>
+                                <label for="username">Username <span class="required-asterisk">*</span><i> (Alpha-Numeric only!)</i></label>
                                 <input class="form-control" id="username" placeholder="boogieman123" name="username" type="text" required>
+                                <h5 id="usernameAlphaNum"></h5>
                             </div>
 
                             <div class="row">
@@ -221,6 +227,17 @@
             } else {
                 $('#passwordMismatch').html('Passwords do not match!').css('color', 'red');
                 passwordMatch = false;
+            }
+        });
+
+        var usernameAlphaNum = false;
+        $('#username').on('keyup', function () {
+            if (/^([a-zA-Z0-9]+)$/.test($('#username').val())) {
+                $('#usernameAlphaNum').html('Username is OK!').css('color', 'green');
+                usernameAlphaNum = true;
+            } else {
+                $('#usernameAlphaNum').html('Please stick to alpha-numeric values in username').css('color', 'red');
+                usernameAlphaNum = false;
             }
         });
 

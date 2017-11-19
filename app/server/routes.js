@@ -73,7 +73,6 @@ module.exports = function(app) {
 
     app.post('/signup', function(req, res){
         if (req.session.loggedin === undefined || req.session.loggedin === false) {
-            console.log(req.body);
             AM.signup(req.body, function(status, o){
                 if (status) {
                     RE.createWeightsTable(req.body.username, function(status, o){
@@ -88,7 +87,6 @@ module.exports = function(app) {
                                     res.render('form-register', {error: 'Signup complete'})
                                }
                                else {
-                                   console.log(o);
                                    res.render('form-register', {error : o});
                                }
                             });
@@ -256,30 +254,35 @@ module.exports = function(app) {
         if (req.session.loggedin === true) {
             var userChoice = req.body.userChoice;
             var answerId = answer.substring(6,7).charCodeAt(0)-64;
+            var activity = null;
 
             if (parseInt(userChoice) === answerId){
                 ansResult = true;
-                score = maxPoints;
+                qScore = maxPoints;
                 weightUpdate = weight / (numAttempts - attemptsLeft);
 
                 res.status(200).send(JSON.stringify({result: true, attemptsLeft: attemptsLeft}));
                 RE.updateWeights(req.session.username, topic, weight, function (status, result) {
-                    console.log('/verifyAnswer - ' + result);
+                    if (status) {
+                        activity = {question: question, topic: topic, result: ansResult, score: qScore};
+                        RE.updateActivity(req.session.username, activity, function (status, result) {
+                            if (status) {
+                                res.status(200).send(JSON.stringify({result: true, attemptsLeft: attemptsLeft}));
+                            }
+                        });
+                    }
                 });
             } else {
                 attemptsLeft -= 1;
-                score = penalty;
-                if (!attemptsLeft) {
-                    res.status(200).send(JSON.stringify({result: false, attemptsLeft: attemptsLeft}));
-                } else {
-                    res.status(200).send(JSON.stringify({result: false, attemptsLeft: attemptsLeft}));
-                }
-            }
+                qScore = penalty;
 
-            var activity = {question: question, topic: topic, result: ansResult, score: score};
-            RE.updateActivity(req.session.username, activity, function (status, result) {
-                console.log('/verifyAnswer - ' + result);
-            });
+                activity = {question: question, topic: topic, result: ansResult, score: qScore};
+                RE.updateActivity(req.session.username, activity, function (status, result) {
+                    if (status) {
+                        res.status(200).send(JSON.stringify({result: false, attemptsLeft: attemptsLeft}));
+                    }
+                });
+            }
         }
     });
 
