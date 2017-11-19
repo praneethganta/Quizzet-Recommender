@@ -38,15 +38,38 @@ exports.updateWeights = function (user, topic, weight, callback) {
     });
 };
 
-exports.displayQuestion = function (questionId, callback) {
-    client.query("SELECT * from question_and_answer where question_id =$1", [questionId], (err,result) => {
-        if (result.rows.length === 1) {
-            callback(true, //JSON.stringify(result.rows[0]));
-                result.rows[0]);
+exports.displayQuestion = function (user, score, callback) {
+    var level = 0;
+    if (score <=150) {
+        level = 1;
+    }
+    else if(score > 150 && score <=250) {
+        level = 2;
+    }
+    else {
+        level = 3;
+    }
+    weight_level = level * 100;
+    var tableName =  user + "_question_weights";
+    var query = "select question_id from " + tableName + " WHERE weight < $1;";
+    client.query(query, [weight_level], (err,result) => {
+        if (result.rows.length >= 1) {
+            var randomPick = Math.floor(Math.random() * result.rows.length);
+            var question_id = result.rows[randomPick].question_id;
+            client.query("select *from question_and_answer where question_id = $1", [question_id], (err,result) => {
+                if(err){
+                    callback(false, "Question not retrieved please reload");
+                }
+                else {
+                    callback(true, result.rows[0]);
+                }
+
+            });
+
         } else {
-            callback(false, "Invalid Question Id.");
+            callback(false, "Question not retrieved please reload");
         }
-    })
+    });
 };
 
 exports.createWeightsTable = function (user, callback) {

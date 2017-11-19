@@ -118,7 +118,7 @@ module.exports = function(app) {
                 if (status){
                     score = result;
                     var question_id = Math.floor(Math.random() * 101);
-                    RE.displayQuestion(question_id, function (status, result) {
+                    RE.displayQuestion(req.session.username,score, function (status, result) {
                         if (status) {
                             question = result.question.trim();
                             if (question[0] === '"') {
@@ -136,7 +136,7 @@ module.exports = function(app) {
                             numAttempts = result.num_choices / 2;
                             level = result.level;
                             answer = result.answer;
-                            topic = result.topic;
+                            topic = result.course_topic;
                             ansResult = false;
                             attemptsLeft = numAttempts;
 
