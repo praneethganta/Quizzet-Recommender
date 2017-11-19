@@ -240,14 +240,49 @@ module.exports = function(app) {
     });
 
     app.get('/leaderboard', function(req, res){
-        RE.getScore(req.session.username,function(status, result) {
+        var currentUserIndex = 0;
+
+        RE.getScore(req.session.username, function (status, result) {
             if (status) {
                 score = result;
-                res.render('leaderboard', {score:score ,fullname:req.session.fullname, gender:req.session.gender});
-            }
-            else {
-                res.render('leaderboard', {score:"Score not updated please reload" ,fullname:req.session.fullname, gender:req.session.gender});
+                RE.getLeaderboard(function (status, result) {
+                    if (status) {
+                        var users = result;
 
+                        users.forEach(function (user, index) {
+                            if (user.username === req.session.username) {
+                                currentUserIndex = index;
+                            }
+                        });
+
+                        res.render('leaderboard', {
+                            score: score,
+                            users: users,
+                            currentUserIndex: currentUserIndex,
+                            fullname: req.session.fullname,
+                            gender: req.session.gender,
+                            error: ""
+                        });
+                    } else {
+                        res.render('leaderboard', {
+                            score: score,
+                            users: null,
+                            currentUserIndex: currentUserIndex,
+                            fullname: req.session.fullname,
+                            gender: req.session.gender,
+                            error: result
+                        });
+                    }
+                });
+            } else {
+                res.render('leaderboard', {
+                    score: "Score not updated please reload",
+                    users: null,
+                    currentUserIndex: currentUserIndex,
+                    fullname: req.session.fullname,
+                    gender: req.session.gender,
+                    error: result
+                });
             }
         });
     });

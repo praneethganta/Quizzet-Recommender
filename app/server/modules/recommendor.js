@@ -127,7 +127,7 @@ exports.getScore = function (user, callback) {
 };
 
 exports.getHistory = function (user, callback) {
-    client.query("SELECT * from user_history WHERE username=$1;", [user], (err, result) => {
+    client.query("SELECT * FROM user_history WHERE username=$1;", [user], (err, result) => {
         if (err) {
             callback(false, "Error retrieving logs! Please reload.");
         } else {
@@ -135,6 +135,20 @@ exports.getHistory = function (user, callback) {
                 callback(true, result.rows);
             } else {
                 callback(false, "Error retrieving logs! Please reload.");
+            }
+        }
+    })
+};
+
+exports.getLeaderboard = function (callback) {
+    client.query("SELECT username, university, overall_score FROM user_complete_details ORDER BY overall_score DESC;", (err, result) => {
+        if (err) {
+            callback(false, "Error retrieving user data! Please reload.");
+        } else {
+            if (result.rows.length) {
+                callback(true, result.rows);
+            } else {
+                callback(false, "Error retrieving user data! Please reload.");
             }
         }
     })
