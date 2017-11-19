@@ -110,7 +110,7 @@ module.exports = function(app) {
         if (req.session.loggedin === undefined || req.session.loggedin === false){
             res.redirect('/');
         } else {
-            res.render('user-profile');
+            res.render('user-profile',{fullname:req.session.fullname, gender:req.session.gender});
         }
     });
 
@@ -142,11 +142,11 @@ module.exports = function(app) {
     });
 
     app.get('/leaderboard', function(req, res){
-        res.render('leaderboard');
+        res.render('leaderboard',{fullname:req.session.fullname, gender:req.session.gender});
     });
 
     app.get('/history', function(req, res){
-        res.render('history');
+        res.render('history',{fullname:req.session.fullname, gender:req.session.gender});
     });
 
     app.get('/logout', function(req, res){
