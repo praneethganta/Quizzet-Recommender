@@ -53,24 +53,30 @@
         http.send(data);
 
         var response = JSON.parse(http.responseText);
-        if (response.result){
-            alertElement.innerText = "Right answer!!! Please proceed to the next question.";
-            resultElement.classList.remove("alert-danger");
-            resultElement.classList.add("alert-success");
-            submitElement.setAttribute("disabled", true);
-            nextQuestion.removeAttribute("disabled");
-        } else {
-            if (response.attemptsLeft < 1) {
-                alertElement.innerText = "You've run out of attempts for this question! Please proceed to the next question.";
-                resultElement.classList.remove("alert-success");
-                resultElement.classList.add("alert-danger");
+        if (!response.error) {
+            if (response.result){
+                alertElement.innerText = "Right answer!!! Please proceed to the next question.";
+                resultElement.classList.remove("alert-danger");
+                resultElement.classList.add("alert-success");
                 submitElement.setAttribute("disabled", true);
                 nextQuestion.removeAttribute("disabled");
             } else {
-                alertElement.innerText = "Wrong answer! Please try again.";
-                resultElement.classList.remove("alert-success")
-                resultElement.classList.add("alert-danger");
+                if (response.attemptsLeft < 1) {
+                    alertElement.innerText = "You've run out of attempts for this question! Please proceed to the next question.";
+                    resultElement.classList.remove("alert-success");
+                    resultElement.classList.add("alert-danger");
+                    submitElement.setAttribute("disabled", true);
+                    nextQuestion.removeAttribute("disabled");
+                } else {
+                    alertElement.innerText = "Wrong answer! Please try again.";
+                    resultElement.classList.remove("alert-success")
+                    resultElement.classList.add("alert-danger");
+                }
             }
+        } else {
+            alertElement.innerText = "Something went wrong! Please submit again.";
+            resultElement.classList.remove("alert-success");
+            resultElement.classList.add("alert-danger");
         }
     }
 

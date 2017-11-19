@@ -261,15 +261,18 @@ module.exports = function(app) {
                 qScore = maxPoints;
                 weightUpdate = weight / (numAttempts - attemptsLeft);
 
-                res.status(200).send(JSON.stringify({result: true, attemptsLeft: attemptsLeft}));
                 RE.updateWeights(req.session.username, topic, weight, function (status, result) {
                     if (status) {
                         activity = {question: question, topic: topic, result: ansResult, score: qScore};
                         RE.updateActivity(req.session.username, activity, function (status, result) {
                             if (status) {
-                                res.status(200).send(JSON.stringify({result: true, attemptsLeft: attemptsLeft}));
+                                res.status(200).send(JSON.stringify({result: ansResult, attemptsLeft: attemptsLeft, error: false}));
+                            } else {
+                                res.status(200).send(JSON.stringify({result: ansResult, attemptsLeft: attemptsLeft, error: true}));
                             }
                         });
+                    } else {
+                        res.status(200).send(JSON.stringify({result: true, attemptsLeft: attemptsLeft, error: true}));
                     }
                 });
             } else {
@@ -279,7 +282,10 @@ module.exports = function(app) {
                 activity = {question: question, topic: topic, result: ansResult, score: qScore};
                 RE.updateActivity(req.session.username, activity, function (status, result) {
                     if (status) {
-                        res.status(200).send(JSON.stringify({result: false, attemptsLeft: attemptsLeft}));
+                        res.status(200).send(JSON.stringify({result: ansResult, attemptsLeft: attemptsLeft, error: false}));
+                    } else {
+                        attemptsLeft += 1;
+                        res.status(200).send(JSON.stringify({result: ansResult, attemptsLeft: attemptsLeft, error: true}));
                     }
                 });
             }
