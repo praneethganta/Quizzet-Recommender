@@ -52,14 +52,16 @@
                         <a href="#">
                             <div>
                                 <p>
-                                    <strong>Task 1</strong>
-                                    <span class="pull-right text-muted">40% Complete</span>
+                                    <strong>Score : <%= score%> </strong>
                                 </p>
-                                <div class="progress progress-striped active">
-                                    <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%">
-                                        <span class="sr-only">40% Complete (success)</span>
-                                    </div>
-                                </div>
+                                <% if( score <= 0){%>
+                                <i class="fa fa-star-o fa-5x" aria-hidden="true" style="border-color: gold; margin:auto;padding-left:35%;"></i>
+                                <%} else if(score >0 && score <100){%>
+                                <i class="fa fa-star-half-full fa-5x" aria-hidden="true" style="color: gold; margin:auto;padding-left:35%;"></i>
+                                <%} else {%>
+                                <i class="fa fa-star fa-5x" aria-hidden="true" style="color: gold; margin:auto;padding-left:35%;"></i>
+                                <%}%>
+
                             </div>
                         </a>
                     </li>
@@ -250,11 +252,17 @@
                     <div class="panel-heading">
                         <div class="row">
                             <div class="col-xs-3">
-                                <i class="fa fa-comments fa-5x"></i>
+                                <% if( score <= 0){%>
+                                <i class="fa fa-star-o fa-5x" aria-hidden="true" style="border-color: gold; margin:auto;padding-left:35%;"></i>
+                                <%} else if(score >0 && score <100){%>
+                                <i class="fa fa-star-half-full fa-5x" aria-hidden="true" style="color: white; margin:auto;padding-left:35%;"></i>
+                                <%} else {%>
+                                <i class="fa fa-star fa-5x" aria-hidden="true" style="color: gold; margin:auto;padding-left:35%;"></i>
+                                <%}%>
                             </div>
                             <div class="col-xs-9 text-right">
-                                <div class="huge">26</div>
-                                <div>New Comments!</div>
+                                <div class="huge"> <%= score%></div>
+                                <div>Total Score!</div>
                             </div>
                         </div>
                     </div>

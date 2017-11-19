@@ -109,8 +109,8 @@ exports.displayQuestion = function (questionId, callback) {
 };
 
 exports.createWeightsTable = function (user, callback) {
-    if (user.indexOf('.')>-1){
-        user.replace('.','_');
+    if ((user.indexOf('.')>-1) || (user.indexOf('-')>-1)){
+        user.replace(/[.-]/g,'');
     }
 
     var tablename =  user + "_question_weights";
@@ -135,4 +135,19 @@ exports.createWeightsTable = function (user, callback) {
 
     });
 
+};
+
+exports.getScore = function (user, callback) {
+    if ((user.indexOf('.')>-1) || (user.indexOf('-')>-1)){
+        user.replace(/[.-]/g,'');
+    }
+    client.query("SELECT sum(score) from user_history group by username having username=$1;",[user],(err,result) =>{
+        if (result.rows.length === 1) {
+            callback(true, result.rows[0]);
+        } else {
+            callback(false, 0);
+        }
+
+
+    })
 };

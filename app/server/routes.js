@@ -2,6 +2,7 @@
 
 var AM = require('./modules/account-manager');
 var RE = require('./modules/recommendor');
+var score =0;
 module.exports = function(app) {
 
 	app.get('/', function(req, res){
@@ -86,7 +87,15 @@ module.exports = function(app) {
         if (req.session.loggedin === undefined || req.session.loggedin === false){
             res.redirect('/');
         } else {
-            question_id=Math.floor(Math.random() * 101);
+
+            console.log("Welcome " + req.session.username);
+            AM.getScore(req.session.username,function(status, result){
+                if (status){
+                    score = result.sum;
+                }
+
+            });
+            var question_id=Math.floor(Math.random() * 101);
             AM.displayQuestion(question_id, function (status, result) {
                 var question = result.question.trim();
                 if (question[0] === '"') {
@@ -94,6 +103,7 @@ module.exports = function(app) {
                 }
                 if (status) {
                     res.render('home', {
+                        score: score,
                         question: question,
                         num_choices: result.num_choices,
                         choice1 : result.choice_a,
@@ -106,7 +116,7 @@ module.exports = function(app) {
                         gender : req.session.gender
 
                     });
-                    console.log(result.answer);
+                    console.log(score);
                 }
             });
         }
@@ -116,7 +126,12 @@ module.exports = function(app) {
         if (req.session.loggedin === undefined || req.session.loggedin === false){
             res.redirect('/');
         } else {
-            res.render('user-profile');
+            AM.getScore(req.session.username,function(status, result) {
+                if (status) {
+                    score = result.sum;
+                }
+            });
+            res.render('user-profile', {score:score});
         }
     });
 
@@ -124,7 +139,13 @@ module.exports = function(app) {
         if (req.session.loggedin === undefined || req.session.loggedin === false){
             res.redirect('/');
         } else {
+            AM.getScore(req.session.username,function(status, result) {
+                if (status) {
+                    score = result.sum;
+                }
+            });
             AM.getUserDetails(req.session.username, function (status, results) {
+
                 var username = results.username;
                 var firstName = results.firstname;
                 var lastName = results.lastname;
@@ -141,18 +162,28 @@ module.exports = function(app) {
                 res.render('settings',{error: "", firstName:firstName,lastName:lastName,password:password,gender:gender
                 , age:age,javaProficiency:javaProficiency, knownTopics:knownTopics, academicExperience:academicExperience,
                     professionalExperience:professionalExperience, educationLevel:educationLevel,
-                    universityName:universityName, universityLocation:universityLocation});
+                    universityName:universityName, universityLocation:universityLocation, score:score,});
 
             });
         }
     });
 
     app.get('/leaderboard', function(req, res){
-        res.render('leaderboard');
+        AM.getScore(req.session.username,function(status, result) {
+            if (status) {
+                score = result.sum;
+            }
+        });
+        res.render('leaderboard', {score:score});
     });
 
     app.get('/history', function(req, res){
-        res.render('history');
+        AM.getScore(req.session.username,function(status, result) {
+            if (status) {
+                score = result.sum;
+            }
+        });
+        res.render('history',{score:score});
     });
 
 
