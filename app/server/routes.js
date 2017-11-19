@@ -59,7 +59,7 @@ module.exports = function(app) {
             console.log(req.body);
             AM.signup(req.body, function(status, o){
                 if (status) {
-                    AM.createWeightsTable(req.body.username, function(status, o){
+                    RE.createWeightsTable(req.body.username, function(status, o){
                         if(status){
                             console.log(o);
                         }
@@ -88,7 +88,7 @@ module.exports = function(app) {
             res.redirect('/');
         } else {
             var question_id = Math.floor(Math.random() * 101);
-            AM.displayQuestion(question_id, function (status, result) {
+            RE.displayQuestion(question_id, function (status, result) {
                 if (status) {
                     var question = result.question.trim();
                     if (question[0] === '"') {
@@ -162,7 +162,7 @@ module.exports = function(app) {
     app.post('/logActivity', function (req, res) {
         if (req.session.loggedin === true) {
             var activity = req.body;
-            AM.updateActivity(req.session.username, activity, function (status, result) {
+            RE.updateActivity(req.session.username, activity, function (status, result) {
                 if (status) {
                     res.status(200).send();
                 }
@@ -171,13 +171,13 @@ module.exports = function(app) {
         }
     });
 
-    app.post('/updateWeight', function (req, res) {
+    app.post('/updateWeights', function (req, res) {
         if (req.session.loggedin === true) {
-            AM.updateWeight(req.session.username, req.body.questionId, req.body.weight, function (status, result) {
+            RE.updateWeights(req.session.username, req.body.topic, req.body.weight, function (status, result) {
                 if (status) {
                     res.status(200).send();
                 }
-                console.log('/updateWeight - ' + result);
+                console.log('/updateWeights - ' + result);
             });
         }
     });
