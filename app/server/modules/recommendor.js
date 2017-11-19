@@ -94,7 +94,7 @@ function updateScore(user) {
 exports.getScore = function (user, callback) {
     client.query("SELECT overall_score from user_complete_details where  username=$1;",[user],(err,result) =>{
         if (result.rows.length === 1) {
-            callback(true, result.rows[0].score);
+            callback(true, result.rows[0].overall_score);
         } else {
             callback(false, 0);
         }

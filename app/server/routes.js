@@ -119,63 +119,63 @@ module.exports = function(app) {
             RE.getScore(req.session.username,function(status, result){
                 if (status){
                     score = result;
-                }
+                    var question_id = Math.floor(Math.random() * 101);
+                    RE.displayQuestion(question_id, function (status, result) {
+                        if (status) {
+                            question = result.question.trim();
+                            if (question[0] === '"') {
+                                question = question.substring(1, question.length - 1);
+                            }
 
-            });
-            var question_id = Math.floor(Math.random() * 101);
-            RE.displayQuestion(question_id, function (status, result) {
-                if (status) {
-                    question = result.question.trim();
-                    if (question[0] === '"') {
-                        question = question.substring(1, question.length - 1);
-                    }
+                            // Resetting variables
 
-                    // Resetting variables
+                            maxPoints = 0;
+                            penalty = 0;
+                            qScore = 0;
+                            weight = 0;
+                            weightUpdate = 0;
 
-                    maxPoints = 0;
-                    penalty = 0;
-                    qScore = 0;
-                    weight = 0;
-                    weightUpdate = 0;
-
-                    numAttempts = result.num_choices / 2;
-                    level = result.level;
-                    answer = result.answer;
-                    topic = result.topic;
-                    ansResult = false;
-                    attemptsLeft = numAttempts;
+                            numAttempts = result.num_choices / 2;
+                            level = result.level;
+                            answer = result.answer;
+                            topic = result.topic;
+                            ansResult = false;
+                            attemptsLeft = numAttempts;
 
 
-                    if (level === "Easy") {
-                        maxPoints = 10;
-                        penalty = -15;
-                        weight = 50;
-                    } else if (level === "Moderate") {
-                        maxPoints = 20;
-                        penalty = -10;
-                        weight = 40;
-                    } else if (level === "Difficult") {
-                        maxPoints = 30;
-                        penalty = -5;
-                        weight = 30;
-                    }
+                            if (level === "Easy") {
+                                maxPoints = 10;
+                                penalty = -15;
+                                weight = 50;
+                            } else if (level === "Moderate") {
+                                maxPoints = 20;
+                                penalty = -10;
+                                weight = 40;
+                            } else if (level === "Difficult") {
+                                maxPoints = 30;
+                                penalty = -5;
+                                weight = 30;
+                            }
 
-                    res.render('home', {
-                        score: score,
-                        questionInfo: {
-                            question: question,
-                            num_choices: result.num_choices,
-                            choice_a: result.choice_a,
-                            choice_b: result.choice_b,
-                            choice_c: result.choice_c,
-                            choice_d: result.choice_d,
-                            choice_e: result.choice_e
-                        },
-                        fullname : req.session.fullname,
-                        gender : req.session.gender
+                            res.render('home', {
+                                score: score,
+                                questionInfo: {
+                                    question: question,
+                                    num_choices: result.num_choices,
+                                    choice_a: result.choice_a,
+                                    choice_b: result.choice_b,
+                                    choice_c: result.choice_c,
+                                    choice_d: result.choice_d,
+                                    choice_e: result.choice_e
+                                },
+                                fullname : req.session.fullname,
+                                gender : req.session.gender
+                            });
+
+                        }
                     });
-
                 }
+
             });
         }
 	});
@@ -188,9 +188,13 @@ module.exports = function(app) {
             RE.getScore(req.session.username,function(status, result) {
                 if (status) {
                     score = result;
+                    res.render('user-profile', {score:score,fullname:req.session.fullname, gender:req.session.gender});
+                }
+                else {
+                    res.render('user-profile', {score:"Score not updated please reload",fullname:req.session.fullname, gender:req.session.gender});
                 }
             });
-            res.render('user-profile', {score:score,fullname:req.session.fullname, gender:req.session.gender});
+
         }
     });
 
@@ -201,25 +205,39 @@ module.exports = function(app) {
             RE.getScore(req.session.username,function(status, result) {
                 if (status) {
                     score = result;
+                    AM.getUserDetails(req.session.username, function (status, results) {
+                        if (status) {
+                            var firstName = results.firstname;
+                            var lastName = results.lastname;
+                            var gender = results.sex;
+                            var age = results.age;
+                            var javaProficiency = results.java_proficiency;
+                            var knownTopics = results.topics_known;
+                            var academicExperience = results.academic_experience;
+                            var professionalExperience = results.professional_experience;
+                            var educationLevel = results.highest_education_level_completed;
+                            var universityName = results.university;
+                            var universityLocation = results.university_location;
+                            res.render('settings',{error: "", firstName:firstName,lastName:lastName,gender:gender
+                                , age:age,javaProficiency:javaProficiency, knownTopics:knownTopics, academicExperience:academicExperience,
+                                professionalExperience:professionalExperience, educationLevel:educationLevel,
+                                universityName:universityName, universityLocation:universityLocation, score:score});
+                        }
+                        else {
+                            res.render('settings',{error: "Score not updated please reload", firstName:"",lastName:"",gender:""
+                                , age:"",javaProficiency:"", knownTopics:"", academicExperience:"",
+                                professionalExperience:"", educationLevel:"",
+                                universityName:"", universityLocation:"", score:score});
+                        }
+
+                    });
                 }
-            });
-            AM.getUserDetails(req.session.username, function (status, results) {
-                var firstName = results.firstname;
-                var lastName = results.lastname;
-                var password = results.password;
-                var gender = results.sex;
-                var age = results.age;
-                var javaProficiency = results.java_proficiency;
-                var knownTopics = results.topics_known;
-                var academicExperience = results.academic_experience;
-                var professionalExperience = results.professional_experience;
-                var educationLevel = results.highest_education_level_completed;
-                var universityName = results.university;
-                var universityLocation = results.university_location;
-                res.render('settings',{error: "", firstName:firstName,lastName:lastName,password:password,gender:gender
-                , age:age,javaProficiency:javaProficiency, knownTopics:knownTopics, academicExperience:academicExperience,
-                    professionalExperience:professionalExperience, educationLevel:educationLevel,
-                    universityName:universityName, universityLocation:universityLocation, score:score});
+                else {
+                    res.render('settings',{error: "Score not updated please reload", firstName:"",lastName:"",gender:""
+                        , age:"",javaProficiency:"", knownTopics:"", academicExperience:"",
+                        professionalExperience:"", educationLevel:"",
+                        universityName:"", universityLocation:"", score:"Score not updated please reload"});
+                }
             });
         }
     });
@@ -228,18 +246,25 @@ module.exports = function(app) {
         RE.getScore(req.session.username,function(status, result) {
             if (status) {
                 score = result;
+                res.render('leaderboard', {score:score ,fullname:req.session.fullname, gender:req.session.gender});
+            }
+            else {
+                res.render('leaderboard', {score:"Score not updated please reload" ,fullname:req.session.fullname, gender:req.session.gender});
+
             }
         });
-        res.render('leaderboard', {score:score ,fullname:req.session.fullname, gender:req.session.gender});
     });
 
     app.get('/history', function(req, res){
         RE.getScore(req.session.username,function(status, result) {
             if (status) {
                 score = result;
+                res.render('history',{score:score, fullname:req.session.fullname, gender:req.session.gender});
+            }
+            else {
+                res.render('history',{score:"Score not updated please reload", fullname:req.session.fullname, gender:req.session.gender});
             }
         });
-        res.render('history',{score:score, fullname:req.session.fullname, gender:req.session.gender});
     });
 
     app.get('/logout', function(req, res){
