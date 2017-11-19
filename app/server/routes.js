@@ -118,7 +118,6 @@ module.exports = function(app) {
                 if (status){
                     score = result;
                 }
-
             });
             var question_id = Math.floor(Math.random() * 101);
             RE.displayQuestion(question_id, function (status, result) {
@@ -182,7 +181,6 @@ module.exports = function(app) {
         if (req.session.loggedin === undefined || req.session.loggedin === false){
             res.redirect('/');
         } else {
-
             RE.getScore(req.session.username,function(status, result) {
                 if (status) {
                     score = result;
@@ -237,7 +235,7 @@ module.exports = function(app) {
                 score = result;
             }
         });
-        res.render('history',{score:score, fullname:req.session.fullname, gender:req.session.gender});
+        res.render('history', {score: score, fullname: req.session.fullname, gender: req.session.gender});
     });
 
     app.get('/logout', function(req, res){

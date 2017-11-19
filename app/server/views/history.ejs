@@ -24,8 +24,6 @@
 
 <body>
 <div id="wrapper">
-
-    <!-- Navigation -->
     <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -36,10 +34,8 @@
             </button>
             <a class="navbar-brand" href="/">Advanced Quizzet <sub>Human Intelligence Interpreted</sub></a>
         </div>
-        <!-- /.navbar-header -->
 
         <ul class="nav navbar-top-links navbar-right">
-            <!-- /.dropdown -->
             <li class="dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                     <i class="fa fa-tasks fa-fw"></i> <i class="fa fa-caret-down"></i>
@@ -52,8 +48,6 @@
                                     <strong>Score : <%= score%> </strong>
                                 </p>
                                 <i class="fa fa-star fa-5x" aria-hidden="true" style="color: gold; margin:auto;padding-left:35%;"></i>
-
-
                             </div>
                         </a>
                     </li>
@@ -113,9 +107,7 @@
                         </a>
                     </li>
                 </ul>
-                <!-- /.dropdown-tasks -->
             </li>
-            <!-- /.dropdown -->
             <li class="dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                     <i class="fa fa-bell fa-fw"></i> <i class="fa fa-caret-down"></i>
@@ -173,9 +165,7 @@
                         </a>
                     </li>
                 </ul>
-                <!-- /.dropdown-alerts -->
             </li>
-            <!-- /.dropdown -->
             <li class="dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                     <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
@@ -189,11 +179,8 @@
                     <li><a href="/logout"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
                     </li>
                 </ul>
-                <!-- /.dropdown-user -->
             </li>
-            <!-- /.dropdown -->
         </ul>
-        <!-- /.navbar-top-links -->
 
         <div class="navbar-default sidebar" role="navigation">
             <div class="sidebar-nav navbar-collapse">
@@ -207,9 +194,9 @@
                                 <h3 id="fullname" style="padding-left: 5px; padding-right: 5px; text-align: center;"></h3>
                             </div>
                             <script>
-                                var fullname = <%- JSON.stringify(fullname) %>;
-                                var gender = <%- JSON.stringify(gender) %>;
-                                if (gender == "Male") {
+                                var fullname = "<%= fullname %>";
+                                var gender = "<%= gender %>";
+                                if (gender === "Male") {
                                     document.getElementById("avatar").src = "images/male.png";
                                 }
                                 else {
@@ -220,7 +207,7 @@
                         </div>
                     </li>
                     <li>
-                        <a href="/home"><i class="fa fa-edit fa-fw"></i> Home</a>
+                        <a href="/home"><i class="fa fa-home" aria-hidden="true"></i> Home</a>
                     </li>
                     <li>
                         <a href="/history"><i class="fa fa-history" aria-hidden="true"></i> History</a>
@@ -229,21 +216,56 @@
                         <a href="/leaderboard"><i class="fa fa-users" aria-hidden="true"></i> Leaderboard</a>
                     </li>
                 </ul>
-                <!-- /.nav-second-level -->
             </div>
-            <!-- /.sidebar-collapse -->
         </div>
-        <!-- /.navbar-static-side -->
     </nav>
 
     <div id="page-wrapper">
+        <br/>
+        <div class="card mb-3">
+            <div class="card-header">
+                <h4><i class="fa fa-bell-o"></i> Activity :</h4>
+            </div>
 
-    <!-- /#page-wrapper - WRITE CONTENT HERE -->
+            <div>
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Question</th>
+                        <th>Topic</th>
+                        <th>Result</th>
+                        <th>Score</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <% logs.forEach(function(logs, i) { %>
+                    <tr class="clickable-row">
+                        <td><%= log.time %></td>
+                        <td><%= log.question %></td>
+                        <td><%= log.topic %></td>
+                        <td><%= log.result %></td>
+                        <td><%= log.score %></td>
+                        <!--<td>-->
+                            <!--<strong>Text:<br/></strong>-->
+                            <!--<%= post["text"] %>-->
+                            <!--<br/>-->
+                            <!--<br/>-->
+                            <!--<% if (post["code"]) { %>-->
+                            <!--<strong>Code:<br/></strong>-->
+                            <!--<%= post["code"] %>-->
+                            <!--<% } %>-->
+                        <!--</td>-->
+                    </tr>
+                    <% }) %>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
     </div>
 
-
 </div>
-<!-- /#wrapper -->
 
 <!-- jQuery -->
 <script src="js/vendor/jquery.min.js"></script>
