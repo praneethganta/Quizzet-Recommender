@@ -51,6 +51,7 @@ exports.signup = function (userDetails, callback) {
     var gender = userDetails.gender;
     var age = userDetails.age;
     var javaProficiency = userDetails.javaProficiency;
+    var overall_score = 0;
     if (typeof(userDetails.knownTopics) == 'string'){
         var knownTopics = userDetails.knownTopics
     }
@@ -77,8 +78,8 @@ exports.signup = function (userDetails, callback) {
                     }
                     else {
                         client.query("INSERT INTO user_complete_details VALUES ($1 , $2, $3, $4, $5, $6, $7, $8, $9, " +
-                            "$10, $11, $12)", [user, firstName, lastName, gender, knownTopics, javaProficiency,
-                        professionalExperience, academicExperience, age, educationLevel, universityName, universityLocation], (err, result) => {
+                            "$10, $11, $12, $13)", [user, firstName, lastName, gender, knownTopics, javaProficiency,
+                        professionalExperience, academicExperience, age, educationLevel, universityName, universityLocation, overall_score], (err, result) => {
                             if (err){
                                 callback(false, err);
                             }
