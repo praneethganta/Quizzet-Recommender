@@ -26,7 +26,6 @@ exports.updateActivity = function (user, activity, callback) {
         });
 };
 
-
 exports.updateWeights = function (user, topic, weight, callback) {
     var tableName =  user + "_question_weights";
     var query = "UPDATE " + tableName + " SET weight=$1 WHERE course_topic=$2;";
@@ -38,7 +37,6 @@ exports.updateWeights = function (user, topic, weight, callback) {
         }
     });
 };
-
 
 exports.displayQuestion = function (questionId, callback) {
     client.query("SELECT * from question_and_answer where question_id =$1", [questionId], (err,result) => {
@@ -80,7 +78,6 @@ exports.createWeightsTable = function (user, callback) {
 
 };
 
-
 function updateScore(user) {
     client.query("update user_complete_details set overall_score = t.overall_score from (SELECT sum(score) as overall_score from user_history group by username having username= $1) t where username = $1;",[user],(err,result) =>{
         if (err) {
@@ -91,6 +88,7 @@ function updateScore(user) {
     })
 
 }
+
 exports.getScore = function (user, callback) {
     client.query("SELECT overall_score from user_complete_details where  username=$1;",[user],(err,result) =>{
         if (result.rows.length === 1) {
