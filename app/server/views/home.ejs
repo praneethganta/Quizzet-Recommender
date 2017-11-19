@@ -58,7 +58,6 @@
     }
 
     var question = "<%= question %>";
-    var questionId = parseInt("<%= questionInfo.question_id %>");
     var answer = "<%= questionInfo.answer %>";
     var topic = "<%= questionInfo.course_topic %>";
     var result = false;
@@ -85,8 +84,8 @@
             weightUpdate = weight / (numAttempts - attemptsLeft);
 
             var http = new XMLHttpRequest();
-            var url = "/updateWeight";
-            var data = JSON.stringify({questionId: questionId, weight: weightUpdate});
+            var url = "/updateWeights";
+            var data = JSON.stringify({topic: topic, weight: weightUpdate});
             http.open("POST", url);
             http.setRequestHeader("Content-Type", "application/json");
             http.send(data);
@@ -289,15 +288,15 @@
                     <li>
                         <div class="profile clearfix">
                             <div class="profile_pic">
-                                <img src="images/male.png" alt="..." style="padding-left: 25px;" id ="avatar">
+                                <img src="" alt="..." style="padding-left: 25px;" id ="avatar">
                             </div>
                             <div class="profile_info">
                                     <h3 id="fullname" style="padding-left: 5px; padding-right: 5px; text-align: center;"></h3>
                             </div>
                             <script>
-                                var fullname = <%- JSON.stringify(fullname) %>;
-                                var gender = <%- JSON.stringify(gender) %>;
-                                if (gender == "Male") {
+                                var fullname = "<%= fullname %>";
+                                var gender = "<%= gender %>";
+                                if (gender === "Male") {
                                     document.getElementById("avatar").src = "images/male.png";
                                 }
                                 else {

@@ -19,7 +19,7 @@ module.exports = function(app) {
             AM.manualLogin(req.body.username, req.body.password, function(status, o){
                 if(status) {
                     req.session.loggedin = true;
-                    if (req.session.username == null) {
+                    if (req.session.username === undefined) {
                         req.session.username = req.body.username;
                         AM.getUserDetails(req.session.username, function (status, result) {
                             if (status){
@@ -60,7 +60,7 @@ module.exports = function(app) {
             console.log(req.body);
             AM.signup(req.body, function(status, o){
                 if (status) {
-                    AM.createWeightsTable(req.body.username, function(status, o){
+                    RE.createWeightsTable(req.body.username, function(status, o){
                         if(status){
                             console.log(o);
                         }
@@ -89,14 +89,14 @@ module.exports = function(app) {
             res.redirect('/');
         } else {
             //console.log("Welcome " + req.session.username);
-            AM.getScore(req.session.username,function(status, result){
+            RE.getScore(req.session.username,function(status, result){
                 if (status){
                     score = result.sum;
                 }
 
             });
             var question_id = Math.floor(Math.random() * 101);
-            AM.displayQuestion(question_id, function (status, result) {
+            RE.displayQuestion(question_id, function (status, result) {
                 if (status) {
                     var question = result.question.trim();
                     if (question[0] === '"') {
@@ -125,12 +125,13 @@ module.exports = function(app) {
         if (req.session.loggedin === undefined || req.session.loggedin === false){
             res.redirect('/');
         } else {
-            AM.getScore(req.session.username,function(status, result) {
+
+            RE.getScore(req.session.username,function(status, result) {
                 if (status) {
                     score = result.sum;
                 }
             });
-            res.render('user-profile', {score:score});
+            res.render('user-profile', {score:score,fullname:req.session.fullname, gender:req.session.gender});
         }
     });
 
@@ -138,7 +139,7 @@ module.exports = function(app) {
         if (req.session.loggedin === undefined || req.session.loggedin === false){
             res.redirect('/');
         } else {
-            AM.getScore(req.session.username,function(status, result) {
+            RE.getScore(req.session.username,function(status, result) {
                 if (status) {
                     score = result.sum;
                 }
@@ -168,21 +169,21 @@ module.exports = function(app) {
     });
 
     app.get('/leaderboard', function(req, res){
-        AM.getScore(req.session.username,function(status, result) {
+        RE.getScore(req.session.username,function(status, result) {
             if (status) {
                 score = result.sum;
             }
         });
-        res.render('leaderboard', {score:score});
+        res.render('leaderboard', {score:score ,fullname:req.session.fullname, gender:req.session.gender});
     });
 
     app.get('/history', function(req, res){
-        AM.getScore(req.session.username,function(status, result) {
+        RE.getScore(req.session.username,function(status, result) {
             if (status) {
                 score = result.sum;
             }
         });
-        res.render('history',{score:score});
+        res.render('history',{score:score, fullname:req.session.fullname, gender:req.session.gender});
     });
 
     app.get('/logout', function(req, res){
@@ -198,7 +199,7 @@ module.exports = function(app) {
     app.post('/logActivity', function (req, res) {
         if (req.session.loggedin === true) {
             var activity = req.body;
-            AM.updateActivity(req.session.username, activity, function (status, result) {
+            RE.updateActivity(req.session.username, activity, function (status, result) {
                 if (status) {
                     res.status(200).send();
                 }
@@ -207,13 +208,13 @@ module.exports = function(app) {
         }
     });
 
-    app.post('/updateWeight', function (req, res) {
+    app.post('/updateWeights', function (req, res) {
         if (req.session.loggedin === true) {
-            AM.updateWeight(req.session.username, req.body.questionId, req.body.weight, function (status, result) {
+            RE.updateWeights(req.session.username, req.body.topic, req.body.weight, function (status, result) {
                 if (status) {
                     res.status(200).send();
                 }
-                console.log('/updateWeight - ' + result);
+                console.log('/updateWeights - ' + result);
             });
         }
     });
