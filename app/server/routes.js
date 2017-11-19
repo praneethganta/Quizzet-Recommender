@@ -62,13 +62,25 @@ module.exports = function(app) {
                 if (status) {
                     RE.createWeightsTable(req.body.username, function(status, o){
                         if(status){
-                            console.log(o);
+                            activity = {};
+                            activity.question = "Joining Bonus";
+                            activity.topic = 'All';
+                            activity.result = true;
+                            activity.score = 100;
+                            RE.updateActivity(req.body.username,activity,function (status, result) {
+                               if(status) {
+                                    res.render('form-register', {error: 'Signup complete'})
+                               }
+                               else {
+                                   console.log(o);
+                                   res.render('form-register', {error : o});
+                               }
+                            });
                         }
                         else{
-                            console.log(o);
+                            res.render('form-register', {error : o});
                         }
                     });
-                    res.render('form-register', {error : o});
                 }
                 else {
                     res.render('form-register', {error : o});
@@ -91,7 +103,7 @@ module.exports = function(app) {
             //console.log("Welcome " + req.session.username);
             RE.getScore(req.session.username,function(status, result){
                 if (status){
-                    score = result.sum;
+                    score = result;
                 }
 
             });
@@ -128,7 +140,7 @@ module.exports = function(app) {
 
             RE.getScore(req.session.username,function(status, result) {
                 if (status) {
-                    score = result.sum;
+                    score = result;
                 }
             });
             res.render('user-profile', {score:score,fullname:req.session.fullname, gender:req.session.gender});
@@ -141,7 +153,7 @@ module.exports = function(app) {
         } else {
             RE.getScore(req.session.username,function(status, result) {
                 if (status) {
-                    score = result.sum;
+                    score = result;
                 }
             });
             AM.getUserDetails(req.session.username, function (status, results) {
@@ -171,7 +183,7 @@ module.exports = function(app) {
     app.get('/leaderboard', function(req, res){
         RE.getScore(req.session.username,function(status, result) {
             if (status) {
-                score = result.sum;
+                score = result;
             }
         });
         res.render('leaderboard', {score:score ,fullname:req.session.fullname, gender:req.session.gender});
@@ -180,7 +192,7 @@ module.exports = function(app) {
     app.get('/history', function(req, res){
         RE.getScore(req.session.username,function(status, result) {
             if (status) {
-                score = result.sum;
+                score = result;
             }
         });
         res.render('history',{score:score, fullname:req.session.fullname, gender:req.session.gender});

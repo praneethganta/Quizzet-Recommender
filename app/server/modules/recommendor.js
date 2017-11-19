@@ -20,10 +20,12 @@ exports.updateActivity = function (user, activity, callback) {
             if (err) {
                 callback(false, "Error inserting into activity into table");
             } else {
+                updateScore(user);
                 callback(true, "User activity updated");
             }
         });
 };
+
 
 exports.updateWeights = function (user, topic, weight, callback) {
     var tableName =  user + "_question_weights";
@@ -55,14 +57,14 @@ exports.createWeightsTable = function (user, callback) {
     }
 
     var tablename =  user + "_question_weights";
-    var queryString = "CREATE TABLE "+ tablename + "(question_id integer, course_topic text, level text, weight integer);";
+    var queryString = "CREATE TABLE "+ tablename + "(question_id integer, course_topic text, weight integer);";
 
     client.query(queryString, (err,result) =>{
         if (err) {
             callback(false, err);
         }
         else{
-            var query = "INSERT INTO "+ tablename + " SELECT question_id, course_topic, level, weight from dummy_question_weights;"
+            var query = "INSERT INTO "+ tablename + " SELECT question_id, course_topic, weight from dummy_question_weights;"
             client.query(query, (errr,result) => {
                 if (errr) {
                     callback(false, errr);
@@ -78,13 +80,21 @@ exports.createWeightsTable = function (user, callback) {
 
 };
 
+
+function updateScore(user) {
+    client.query("update user_complete_details set overall_score = t.overall_score from (SELECT sum(score) as overall_score from user_history group by username having username= $1) t where username = $1;",[user],(err,result) =>{
+        if (err) {
+            console.log(err);
+        } else {
+            console.log(result);
+        }
+    })
+
+}
 exports.getScore = function (user, callback) {
-    if ((user.indexOf('.')>-1) || (user.indexOf('-')>-1)){
-        user.replace(/[.-]/g,'');
-    }
-    client.query("SELECT sum(score) from user_history group by username having username=$1;",[user],(err,result) =>{
+    client.query("SELECT overall_score from user_complete_details where  username=$1;",[user],(err,result) =>{
         if (result.rows.length === 1) {
-            callback(true, result.rows[0]);
+            callback(true, result.rows[0].score);
         } else {
             callback(false, 0);
         }
