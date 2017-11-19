@@ -2,7 +2,23 @@
 
 var AM = require('./modules/account-manager');
 var RE = require('./modules/recommendor');
-var score =0;
+var score = 0;
+
+// Initializing Question Variables
+
+var maxPoints = null;
+var penalty = null;
+var qScore = null;
+var weight = null;
+var weightUpdate = null;
+
+var numAttempts = null;
+var level = null;
+var question = null;
+var answer = null;
+var topic = null;
+var ansResult = null;
+var attemptsLeft = null;
 
 module.exports = function(app) {
 
@@ -88,7 +104,6 @@ module.exports = function(app) {
         if (req.session.loggedin === undefined || req.session.loggedin === false){
             res.redirect('/');
         } else {
-            //console.log("Welcome " + req.session.username);
             RE.getScore(req.session.username,function(status, result){
                 if (status){
                     score = result.sum;
@@ -98,23 +113,55 @@ module.exports = function(app) {
             var question_id = Math.floor(Math.random() * 101);
             RE.displayQuestion(question_id, function (status, result) {
                 if (status) {
-                    var question = result.question.trim();
+                    question = result.question.trim();
                     if (question[0] === '"') {
                         question = question.substring(1, question.length - 1);
                     }
 
+                    // Resetting variables
+
+                    maxPoints = 0;
+                    penalty = 0;
+                    qScore = 0;
+                    weight = 0;
+                    weightUpdate = 0;
+
+                    numAttempts = result.num_choices / 2;
+                    level = result.level;
+                    answer = result.answer;
+                    topic = result.topic;
+                    ansResult = false;
+                    attemptsLeft = numAttempts;
+
+
+                    if (level === "Easy") {
+                        maxPoints = 10;
+                        penalty = -15;
+                        weight = 50;
+                    } else if (level === "Moderate") {
+                        maxPoints = 20;
+                        penalty = -10;
+                        weight = 40;
+                    } else if (level === "Difficult") {
+                        maxPoints = 30;
+                        penalty = -5;
+                        weight = 30;
+                    }
+
                     res.render('home', {
-
                         score: score,
-
-                        questionInfo: result,
-
-                        question: question,
+                        questionInfo: {
+                            question: question,
+                            num_choices: result.num_choices,
+                            choice_a: result.choice_a,
+                            choice_b: result.choice_b,
+                            choice_c: result.choice_c,
+                            choice_d: result.choice_d,
+                            choice_e: result.choice_e
+                        },
                         fullname : req.session.fullname,
                         gender : req.session.gender
                     });
-
-                    console.log(score);
 
                 }
             });
@@ -145,8 +192,6 @@ module.exports = function(app) {
                 }
             });
             AM.getUserDetails(req.session.username, function (status, results) {
-
-                var username = results.username;
                 var firstName = results.firstname;
                 var lastName = results.lastname;
                 var password = results.password;
@@ -162,8 +207,7 @@ module.exports = function(app) {
                 res.render('settings',{error: "", firstName:firstName,lastName:lastName,password:password,gender:gender
                 , age:age,javaProficiency:javaProficiency, knownTopics:knownTopics, academicExperience:academicExperience,
                     professionalExperience:professionalExperience, educationLevel:educationLevel,
-                    universityName:universityName, universityLocation:universityLocation, score:score,});
-
+                    universityName:universityName, universityLocation:universityLocation, score:score});
             });
         }
     });
@@ -196,25 +240,33 @@ module.exports = function(app) {
         res.redirect('/');
     });
 
-    app.post('/logActivity', function (req, res) {
+    app.post('/verifyAnswer', function (req, res) {
         if (req.session.loggedin === true) {
-            var activity = req.body;
-            RE.updateActivity(req.session.username, activity, function (status, result) {
-                if (status) {
-                    res.status(200).send();
-                }
-                console.log('/logActivity - ' + result);
-            });
-        }
-    });
+            var userChoice = req.body.userChoice;
+            var answerId = answer.substring(6,7).charCodeAt(0)-64;
 
-    app.post('/updateWeights', function (req, res) {
-        if (req.session.loggedin === true) {
-            RE.updateWeights(req.session.username, req.body.topic, req.body.weight, function (status, result) {
-                if (status) {
-                    res.status(200).send();
+            if (parseInt(userChoice) === answerId){
+                ansResult = true;
+                score = maxPoints;
+                weightUpdate = weight / (numAttempts - attemptsLeft);
+
+                res.status(200).send(JSON.stringify({result: true, attemptsLeft: attemptsLeft}));
+                RE.updateWeights(req.session.username, topic, weight, function (status, result) {
+                    console.log('/verifyAnswer - ' + result);
+                });
+            } else {
+                attemptsLeft -= 1;
+                score = penalty;
+                if (!attemptsLeft) {
+                    res.status(200).send(JSON.stringify({result: false, attemptsLeft: attemptsLeft}));
+                } else {
+                    res.status(200).send(JSON.stringify({result: false, attemptsLeft: attemptsLeft}));
                 }
-                console.log('/updateWeights - ' + result);
+            }
+
+            var activity = {question: question, topic: topic, result: ansResult, score: score};
+            RE.updateActivity(req.session.username, activity, function (status, result) {
+                console.log('/verifyAnswer - ' + result);
             });
         }
     });

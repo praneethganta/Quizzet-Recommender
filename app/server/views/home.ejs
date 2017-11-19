@@ -35,37 +35,9 @@
 <body>
 
 <script>
-    var numAttempts = parseInt("<%= questionInfo.num_choices / 2 %>");
-
-    var maxPoints = 0;
-    var penalty = 0;
-    var score = 0;
-    var weight = 0;
-    var weightUpdate = 0;
-    var level = "<%= questionInfo.level %>";
-    if (level === "Easy") {
-        maxPoints = 10;
-        penalty = -15;
-        weight = 50;
-    } else if (level === "Moderate") {
-        maxPoints = 20;
-        penalty = -10;
-        weight = 40;
-    } else if (level === "Difficult") {
-        maxPoints = 30;
-        penalty = -5;
-        weight = 30;
-    }
-
-    var question = "<%= question %>";
-    var answer = "<%= questionInfo.answer %>";
-    var topic = "<%= questionInfo.course_topic %>";
-    var result = false;
-    var attemptsLeft = numAttempts;
 
     function checkAnswer() {
         var choice = $('input[type=radio]:checked', '#myForm').val();
-        var answerId = answer.substring(6,7).charCodeAt(0)-64;
 
         var submitElement = document.getElementById("submit_button");
         var alertElement = document.getElementById("alert_text");
@@ -73,26 +45,22 @@
         var resultElement = document.getElementById("result");
         resultElement.removeAttribute("hidden");
 
-        if (parseInt(choice) === answerId){
+        var http = new XMLHttpRequest();
+        var url = "/verifyAnswer";
+        var data = JSON.stringify({userChoice: choice});
+        http.open("POST", url, false);
+        http.setRequestHeader("Content-Type", "application/json");
+        http.send(data);
+
+        var response = JSON.parse(http.responseText);
+        if (response.result){
             alertElement.innerText = "Right answer!!! Please proceed to the next question.";
             resultElement.classList.remove("alert-danger");
             resultElement.classList.add("alert-success");
             submitElement.setAttribute("disabled", true);
             nextQuestion.removeAttribute("disabled");
-            result = true;
-            score = maxPoints;
-            weightUpdate = weight / (numAttempts - attemptsLeft);
-
-            var http = new XMLHttpRequest();
-            var url = "/updateWeights";
-            var data = JSON.stringify({topic: topic, weight: weightUpdate});
-            http.open("POST", url);
-            http.setRequestHeader("Content-Type", "application/json");
-            http.send(data);
         } else {
-            attemptsLeft -= 1;
-            score = penalty;
-            if (!attemptsLeft) {
+            if (response.attemptsLeft < 1) {
                 alertElement.innerText = "You've run out of attempts for this question! Please proceed to the next question.";
                 resultElement.classList.remove("alert-success");
                 resultElement.classList.add("alert-danger");
@@ -104,13 +72,6 @@
                 resultElement.classList.add("alert-danger");
             }
         }
-
-        var http = new XMLHttpRequest();
-        var url = "/logActivity";
-        var data = JSON.stringify({question: question, topic: topic, result: result, score: score});
-        http.open("POST", url);
-        http.setRequestHeader("Content-Type", "application/json");
-        http.send(data);
     }
 
     $(document).ready(function () {
@@ -330,7 +291,7 @@
                 <a class="list-group-item list-group-item-action" href="#">
                     <div class="media">
                         <div class="media-body">
-                            <h5><strong><code><%- question %></code></strong></h5>
+                            <h5><strong><code><%- questionInfo.question %></code></strong></h5>
                             <div class="text-muted smaller">
                                 <h5>Choose your answer from the options below:</h5>
                             </div>
