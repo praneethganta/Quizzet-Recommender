@@ -2,8 +2,11 @@
 
 var AM = require('./modules/account-manager');
 var RE = require('./modules/recommendor');
+<<<<<<< HEAD
 var score =0;
+=======
 
+>>>>>>> a215516a6bade67001346d73afd68594e6e034aa
 module.exports = function(app) {
 
 	app.get('/', function(req, res){
@@ -88,14 +91,19 @@ module.exports = function(app) {
         if (req.session.loggedin === undefined || req.session.loggedin === false){
             res.redirect('/');
         } else {
-            //console.log("Welcome " + req.session.username);
+<<<<<<< HEAD
+
+            console.log("Welcome " + req.session.username);
             AM.getScore(req.session.username,function(status, result){
                 if (status){
                     score = result.sum;
                 }
 
             });
+            var question_id=Math.floor(Math.random() * 101);
+=======
             var question_id = Math.floor(Math.random() * 101);
+>>>>>>> a215516a6bade67001346d73afd68594e6e034aa
             AM.displayQuestion(question_id, function (status, result) {
                 if (status) {
                     var question = result.question.trim();
@@ -104,18 +112,19 @@ module.exports = function(app) {
                     }
 
                     res.render('home', {
-
+<<<<<<< HEAD
                         score: score,
-
+=======
                         questionInfo: result,
-
+>>>>>>> a215516a6bade67001346d73afd68594e6e034aa
                         question: question,
                         fullname : req.session.fullname,
                         gender : req.session.gender
                     });
-
+<<<<<<< HEAD
                     console.log(score);
-
+=======
+>>>>>>> a215516a6bade67001346d73afd68594e6e034aa
                 }
             });
         }

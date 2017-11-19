@@ -20,32 +20,110 @@
     <!-- Custom Fonts -->
     <link href="css/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
 
+    <style>
+        .radio-text {
+            vertical-align: top;
+            margin-right: 3%;
+            font-size:14px;
+        }
+    </style>
+
+    <script src="js/vendor/jquery.min.js"></script>
+
 </head>
 
 <body>
+
 <script>
+    var numAttempts = parseInt("<%= questionInfo.num_choices / 2 %>");
 
-    var answer = <%- JSON.stringify(correct) %>;
-    function checkAnswer()
-    {
-        var choice = $('input[type=radio]:checked', '#myForm').val();
-
-        document.getElementById("noshow").style.visibility = "visible";
-        answerId = answer.substring(6,7).charCodeAt(0)-64;
-        if (parseInt(choice) == answerId ){
-               document.getElementById("result").innerText = "You got it right !!!";
-        }
-        else{
-            var txt = document.getElementById("optionsRadios"+answerId).innerHTML;
-            document.getElementById("result").innerText ="Sorry, the right answer is:   ("+ (answer.substring(6,7).charCodeAt(0)-64)+") "+ txt ;
-        }
-
+    var maxPoints = 0;
+    var penalty = 0;
+    var score = 0;
+    var weight = 0;
+    var weightUpdate = 0;
+    var level = "<%= questionInfo.level %>";
+    if (level === "Easy") {
+        maxPoints = 10;
+        penalty = -15;
+        weight = 50;
+    } else if (level === "Moderate") {
+        maxPoints = 20;
+        penalty = -10;
+        weight = 40;
+    } else if (level === "Difficult") {
+        maxPoints = 30;
+        penalty = -5;
+        weight = 30;
     }
 
-</script>
-<div id="wrapper">
+    var question = "<%= question %>";
+    var questionId = parseInt("<%= questionInfo.question_id %>");
+    var answer = "<%= questionInfo.answer %>";
+    var topic = "<%= questionInfo.course_topic %>";
+    var result = false;
+    var attemptsLeft = numAttempts;
 
-    <!-- Navigation -->
+    function checkAnswer() {
+        var choice = $('input[type=radio]:checked', '#myForm').val();
+        var answerId = answer.substring(6,7).charCodeAt(0)-64;
+
+        var submitElement = document.getElementById("submit_button");
+        var alertElement = document.getElementById("alert_text");
+        var nextQuestion = document.getElementById("nextQuestion");
+        var resultElement = document.getElementById("result");
+        resultElement.removeAttribute("hidden");
+
+        if (parseInt(choice) === answerId){
+            alertElement.innerText = "Right answer!!! Please proceed to the next question.";
+            resultElement.classList.remove("alert-danger");
+            resultElement.classList.add("alert-success");
+            submitElement.setAttribute("disabled", true);
+            nextQuestion.removeAttribute("disabled");
+            result = true;
+            score = maxPoints;
+            weightUpdate = weight / (numAttempts - attemptsLeft);
+
+            var http = new XMLHttpRequest();
+            var url = "/updateWeight";
+            var data = JSON.stringify({questionId: questionId, weight: weightUpdate});
+            http.open("POST", url);
+            http.setRequestHeader("Content-Type", "application/json");
+            http.send(data);
+        } else {
+            attemptsLeft -= 1;
+            score = penalty;
+            if (!attemptsLeft) {
+                alertElement.innerText = "You've run out of attempts for this question! Please proceed to the next question.";
+                resultElement.classList.remove("alert-success");
+                resultElement.classList.add("alert-danger");
+                submitElement.setAttribute("disabled", true);
+                nextQuestion.removeAttribute("disabled");
+            } else {
+                alertElement.innerText = "Wrong answer! Please try again.";
+                resultElement.classList.remove("alert-success")
+                resultElement.classList.add("alert-danger");
+            }
+        }
+
+        var http = new XMLHttpRequest();
+        var url = "/logActivity";
+        var data = JSON.stringify({question: question, topic: topic, result: result, score: score});
+        http.open("POST", url);
+        http.setRequestHeader("Content-Type", "application/json");
+        http.send(data);
+    }
+
+    $(document).ready(function () {
+        $(".radio").on("click", function (event) {
+            var elementId = event.target.id;
+            var radioId = "#optionsRadios" + elementId[elementId.length - 1];
+            $(radioId).prop("checked", true);
+        });
+    });
+</script>
+
+<div id="wrapper">
     <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -56,10 +134,8 @@
             </button>
             <a class="navbar-brand" href="/">Advanced Quizzet <sub>Human Intelligence Interpreted</sub></a>
         </div>
-        <!-- /.navbar-header -->
 
         <ul class="nav navbar-top-links navbar-right">
-            <!-- /.dropdown -->
             <li class="dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                     <i class="fa fa-tasks fa-fw"></i> <i class="fa fa-caret-down"></i>
@@ -138,9 +214,7 @@
                         </a>
                     </li>
                 </ul>
-                <!-- /.dropdown-tasks -->
             </li>
-            <!-- /.dropdown -->
             <li class="dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                     <i class="fa fa-bell fa-fw"></i> <i class="fa fa-caret-down"></i>
@@ -198,9 +272,7 @@
                         </a>
                     </li>
                 </ul>
-                <!-- /.dropdown-alerts -->
             </li>
-            <!-- /.dropdown -->
             <li class="dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                     <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
@@ -214,11 +286,8 @@
                     <li><a href="/logout"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
                     </li>
                 </ul>
-                <!-- /.dropdown-user -->
             </li>
-            <!-- /.dropdown -->
         </ul>
-        <!-- /.navbar-top-links -->
 
         <div class="navbar-default sidebar" role="navigation">
             <div class="sidebar-nav navbar-collapse">
@@ -248,102 +317,82 @@
                         <a href="/home"><i class="fa fa-edit fa-fw"></i> Home</a>
                     </li>
                     <li>
-                        <a href="/history"><i class="fa fa-dashboard fa-fw"></i>History</a>
+                        <a href="/history"><i class="fa fa-history" aria-hidden="true"></i> History</a>
                     </li>
                     <li>
-                        <a href="/leaderboard"><i class="fa fa-table fa-fw"></i>Leaderboard</a>
+                        <a href="/leaderboard"><i class="fa fa-users" aria-hidden="true"></i> Leaderboard</a>
                     </li>
                 </ul>
-                <!-- /.nav-second-level -->
             </div>
-            <!-- /.sidebar-collapse -->
         </div>
-        <!-- /.navbar-static-side -->
     </nav>
 
     <div id="page-wrapper">
-
-    <!-- /#page-wrapper - WRITE CONTENT HERE -->
-        <div class="container-fluid">
-            <!-- Breadcrumbs-->
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item">
-                    <a href="#">Quizzes</a>
-                </li>
-                <li class="breadcrumb-item active">Quiz 1</li>
-            </ol>
-
-        </div>
-
+        <br/>
         <div class="card mb-3">
             <div class="card-header">
-                <i class="fa fa-bell-o"></i> Question :   </div>
+                <h4><i class="fa fa-bell-o"></i> Question :</h4>
+            </div>
             <div class="list-group list-group-flush small">
                 <a class="list-group-item list-group-item-action" href="#">
                     <div class="media">
-
                         <div class="media-body">
-                            <strong><h3><%- question%></h3></strong>
-                            <div class="text-muted smaller">Choose your answer from the options below: </div>
+                            <h5><strong><code><%- question %></code></strong></h5>
+                            <div class="text-muted smaller">
+                                <h5>Choose your answer from the options below:</h5>
+                            </div>
                         </div>
                     </div>
                 </a>
 
+                <br/>
 
                 <form role="form" id ="myForm" action="/home" method="get">
                     <fieldset>
-                        <% var i=1;
-                           while(i<=num_choices){ %>
-                           <a class="list-group-item list-group-item-action" href="#">
+                        <% var i = 1;
+                           while (i <= questionInfo.num_choices) { %>
+                           <a class="list-group-item list-group-item-action">
                                <div class="media">
                                    <div class="media-body">
-                                       <div class="radio">
-                                           <label>
-                                               <h4>
-
-                                           <input type="radio" class="optionsRadios" name="radAnswer" value=<%= i%>    >
-                                             <% if(i==1) {%><p id=<%= "optionsRadios"+i%>><%- choice1 %></p>  <%}
-                                                else if(i==2) {%><p id=<%= "optionsRadios"+i%>><%- choice2 %></p> <%}
-                                                else if(i==3) {%><p id=<%= "optionsRadios"+i%>><%- choice3 %></p>  <%}
-                                                else if(i==4) {%> <p id=<%= "optionsRadios"+i%>><%- choice4 %></p>  <%}
-                                                else if(i==5) {%> <p id=<%= "optionsRadios"+i%>><%- choice5 %></p>  <%}%>
-                                               </h4>
+                                       <div class="radio" id=<%= "radioLinks" + i %> >
+                                           <label for=<%= "optionsRadios" + i %>>
+                                               <input type="radio" class="optionsRadios" id=<%= "optionsRadios" + i %> name="radAnswer" value=<%= i %> >
+                                                    <span class="radio-text"><% if(i==1) {%> <%- questionInfo.choice_a %> <%}
+                                                        else if(i==2) {%> <%- questionInfo.choice_b %> <%}
+                                                        else if(i==3) {%> <%- questionInfo.choice_c %> <%}
+                                                        else if(i==4) {%> <%- questionInfo.choice_d %> <%}
+                                                        else if(i==5) {%> <%- questionInfo.choice_e %> <%}
+                                                     %></span>
                                            </label>
                                        </div>
-
-                                       </div>
                                    </div>
-
+                               </div>
                            </a>
-                        <%i++;   }%>
-                        <div class="form-group" style="float:left; width:25%">
-                            <button type="button" class="btn btn-success " onclick="checkAnswer()">Submit</button>
-                        </div>
-                        <div class="form-group" style="float:right">
-                            <button type="submit" class="btn btn-success" id="nextQuestion">Next Question >> </button>
+                        <%i++;
+                        }%>
+
+                        <br/>
+                        <div>
+                            <div class="form-group" style="float:left; width:25%">
+                                <button id="submit_button" type="button" class="btn btn-success" onclick="checkAnswer()">Submit <i class="fa fa-paper-plane" aria-hidden="true"></i></button>
+                            </div>
+                            <div class="form-group" style="float:right">
+                                <button type="submit" class="btn btn-success" id="nextQuestion" disabled>Next Question <i class="fa fa-arrow-right" aria-hidden="true"></i></button>
+                            </div>
                         </div>
                     </fieldset>
                 </form>
-                <a id="noshow" class="list-group-item list-group-item-action" href="#" style="visibility: hidden" >
-                    <div class="media">
-
-                        <div class="media-body">
-                            <strong><h3>Result: </h3></strong>
-                            <div ><h4>
-                            <p id="result"> </p></h4></div>
-                        </div>
-                    </div>
-                </a>
+                <div class="alert alert-danger text-center" role="alert" id="result" hidden>
+                    <h5 id="alert_text"></h5>
+                </div>
+                <br/>
             </div>
         </div>
     </div>
-
-
 </div>
-<!-- /#wrapper -->
 
 <!-- jQuery -->
-<script src="js/vendor/jquery.min.js"></script>
+
 <!-- Bootstrap Core JavaScript -->
 <script src="js/vendor/bootstrap.min.js"></script>
 
