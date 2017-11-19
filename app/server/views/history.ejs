@@ -20,6 +20,22 @@
     <!-- Custom Fonts -->
     <link href="css/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
 
+    <style>
+        .fa-check {
+            color: green;
+            font-size: 18px;
+        }
+
+        .fa-times {
+            color: red;
+            font-size: 18px;
+        }
+
+        code {
+            font-size: 14px;
+        }
+    </style>
+
 </head>
 
 <body>
@@ -191,7 +207,7 @@
                                 <img src="" alt="..." style="padding-left: 25px;" id ="avatar">
                             </div>
                             <div class="profile_info">
-                                <h3 id="fullname" style="padding-left: 5px; padding-right: 5px; text-align: center;"></h3>
+                                <h4 id="fullname" style="padding-left: 5px; padding-right: 5px; text-align: center;"></h4>
                             </div>
                             <script>
                                 var fullname = "<%= fullname %>";
@@ -224,45 +240,43 @@
         <br/>
         <div class="card mb-3">
             <div class="card-header">
-                <h4><i class="fa fa-bell-o"></i> Activity :</h4>
+                <h4><i class="fa fa-list" aria-hidden="true"></i> Activity :</h4>
             </div>
 
-            <div>
-                <table class="table table-hover">
-                    <thead>
-                    <tr>
-                        <th>Time</th>
-                        <th>Question</th>
-                        <th>Topic</th>
-                        <th>Result</th>
-                        <th>Score</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <% logs.forEach(function(logs, i) { %>
-                    <tr class="clickable-row">
-                        <td><%= log.time %></td>
-                        <td><%= log.question %></td>
-                        <td><%= log.topic %></td>
-                        <td><%= log.result %></td>
-                        <td><%= log.score %></td>
-                        <!--<td>-->
-                            <!--<strong>Text:<br/></strong>-->
-                            <!--<%= post["text"] %>-->
-                            <!--<br/>-->
-                            <!--<br/>-->
-                            <!--<% if (post["code"]) { %>-->
-                            <!--<strong>Code:<br/></strong>-->
-                            <!--<%= post["code"] %>-->
-                            <!--<% } %>-->
-                        <!--</td>-->
-                    </tr>
-                    <% }) %>
-                    </tbody>
-                </table>
-            </div>
+            <% if (error === "") { %>
+                <div>
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Question</th>
+                            <th>Topic</th>
+                            <th>Result</th>
+                            <th>Score</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <% logs.forEach(function(log, i) { %>
+                        <tr class="clickable-row">
+                            <td><%= log.time %></td>
+                            <td><code><%= log.question %></code></td>
+                            <td><%= log.topic %></td>
+                            <% if (log.result) { %>
+                                <td><i class="fa fa-check" aria-hidden="true"></i></td>
+                            <% } else { %>
+                                <td><i class="fa fa-times" aria-hidden="true"></i></td>
+                            <% } %>
+                            <td><%= log.score %></td>
+                        </tr>
+                        <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } %>
 
         </div>
+
+        <div class="alert alert-danger text-center" role="alert" id="error"></div>
     </div>
 
 </div>
@@ -271,6 +285,18 @@
 <script src="js/vendor/jquery.min.js"></script>
 <!-- Bootstrap Core JavaScript -->
 <script src="js/vendor/bootstrap.min.js"></script>
+
+<script>
+    var error = "<%= error %>";
+    $("document").ready(function () {
+        if (error !== "") {
+            $(".alert").attr("hidden", false);
+            $(".alert").text(error);
+        } else {
+            $(".alert").attr("hidden", true);
+        }
+    });
+</script>
 
 </body>
 

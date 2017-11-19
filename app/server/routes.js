@@ -253,13 +253,30 @@ module.exports = function(app) {
     });
 
     app.get('/history', function(req, res){
-        RE.getScore(req.session.username,function(status, result) {
+        RE.getScore(req.session.username, function (status, result) {
             if (status) {
                 score = result;
-                res.render('history',{score:score, fullname:req.session.fullname, gender:req.session.gender});
-            }
-            else {
-                res.render('history',{score:"Score not updated please reload", fullname:req.session.fullname, gender:req.session.gender});
+                RE.getHistory(req.session.username, function (status, result) {
+                    if (status) {
+                        res.render('history', {
+                            score: score,
+                            logs: result,
+                            fullname: req.session.fullname,
+                            gender: req.session.gender,
+                            error: ""
+                        });
+                    } else {
+                        res.render('history', {
+                            score: score,
+                            logs: null,
+                            fullname: req.session.fullname,
+                            gender: req.session.gender,
+                            error: result
+                        });
+                    }
+                });
+            } else {
+                res.render('history', {score: "Score not updated please reload", logs: null, fullname: req.session.fullname, gender: req.session.gender, error: result});
             }
         });
     });
