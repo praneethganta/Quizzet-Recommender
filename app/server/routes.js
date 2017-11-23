@@ -20,6 +20,8 @@ var topic = null;
 var ansResult = null;
 var attemptsLeft = null;
 
+var sortCriteria = "global";
+
 module.exports = function(app) {
 
 	app.get('/', function(req, res){
@@ -259,6 +261,7 @@ module.exports = function(app) {
                             score: score,
                             users: users,
                             currentUserIndex: currentUserIndex,
+                            sortCriteria: sortCriteria,
                             fullname: req.session.fullname,
                             gender: req.session.gender,
                             error: ""
@@ -268,6 +271,7 @@ module.exports = function(app) {
                             score: score,
                             users: null,
                             currentUserIndex: currentUserIndex,
+                            sortCriteria: sortCriteria,
                             fullname: req.session.fullname,
                             gender: req.session.gender,
                             error: result
@@ -279,6 +283,7 @@ module.exports = function(app) {
                     score: "Score not updated please reload",
                     users: null,
                     currentUserIndex: currentUserIndex,
+                    sortCriteria: sortCriteria,
                     fullname: req.session.fullname,
                     gender: req.session.gender,
                     error: result
@@ -365,6 +370,13 @@ module.exports = function(app) {
                     }
                 });
             }
+        }
+    });
+
+    app.post('/updateLeaderboard', function(req, res){
+        if (req.session.loggedin === true) {
+            sortCriteria = req.body.sortCriteria;
+            res.status(200).send();
         }
     });
 
