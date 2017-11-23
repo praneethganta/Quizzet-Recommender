@@ -20,12 +20,16 @@
     <!-- Custom Fonts -->
     <link href="css/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
 
+    <style>
+        #<%= users[currentUserIndex].username %>, #currentUser {
+            background-color: lightgray;
+        }
+    </style>
+
 </head>
 
 <body>
 <div id="wrapper">
-
-    <!-- Navigation -->
     <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -36,10 +40,8 @@
             </button>
             <a class="navbar-brand" href="/">Advanced Quizzet <sub>Human Intelligence Interpreted</sub></a>
         </div>
-        <!-- /.navbar-header -->
 
         <ul class="nav navbar-top-links navbar-right">
-            <!-- /.dropdown -->
             <li class="dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                     <i class="fa fa-tasks fa-fw"></i> <i class="fa fa-caret-down"></i>
@@ -126,9 +128,7 @@
                         </a>
                     </li>-->
                 </ul>
-                <!-- /.dropdown-tasks -->
             </li>
-            <!-- /.dropdown -->
             <li class="dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                     <i class="fa fa-bell fa-fw"></i> <i class="fa fa-caret-down"></i>
@@ -186,9 +186,7 @@
                         </a>
                     </li>
                 </ul>
-                <!-- /.dropdown-alerts -->
             </li>
-            <!-- /.dropdown -->
             <li class="dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                     <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
@@ -202,11 +200,8 @@
                     <li><a href="/logout"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
                     </li>
                 </ul>
-                <!-- /.dropdown-user -->
             </li>
-            <!-- /.dropdown -->
         </ul>
-        <!-- /.navbar-top-links -->
 
         <div class="navbar-default sidebar" role="navigation">
             <div class="sidebar-nav navbar-collapse">
@@ -217,12 +212,12 @@
                                 <img src="" alt="..." style="padding-left: 25px;" id ="avatar">
                             </div>
                             <div class="profile_info">
-                                <h3 id="fullname" style="padding-left: 5px; padding-right: 5px; text-align: center;"></h3>
+                                <h4 id="fullname" style="padding-left: 5px; padding-right: 5px; text-align: center;"></h4>
                             </div>
                             <script>
-                                var fullname = <%- JSON.stringify(fullname) %>;
-                                var gender = <%- JSON.stringify(gender) %>;
-                                if (gender == "Male") {
+                                var fullname = "<%= fullname %>";
+                                var gender = "<%= gender %>";
+                                if (gender === "Male") {
                                     document.getElementById("avatar").src = "images/male.png";
                                 }
                                 else {
@@ -233,7 +228,7 @@
                         </div>
                     </li>
                     <li>
-                        <a href="/home"><i class="fa fa-edit fa-fw"></i> Home</a>
+                        <a href="/home"><i class="fa fa-home" aria-hidden="true"></i> Home</a>
                     </li>
                     <li>
                         <a href="/history"><i class="fa fa-history" aria-hidden="true"></i> History</a>
@@ -242,26 +237,72 @@
                         <a href="/leaderboard"><i class="fa fa-users" aria-hidden="true"></i> Leaderboard</a>
                     </li>
                 </ul>
-                <!-- /.nav-second-level -->
             </div>
-            <!-- /.sidebar-collapse -->
         </div>
-        <!-- /.navbar-static-side -->
     </nav>
 
     <div id="page-wrapper">
+        <br/>
+        <div class="card mb-3">
+            <div class="card-header">
+                <h4><i class="fa fa-sort-amount-desc" aria-hidden="true"></i> Leaderboard :</h4>
+            </div>
 
-    <!-- /#page-wrapper - WRITE CONTENT HERE -->
+            <% if (error === "") { %>
+                <div>
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Username</th>
+                            <th>University</th>
+                            <th>Score</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr class="clickable-row" id="currentUser">
+                            <td class="col-md-3"><%= currentUserIndex + 1 %></td>
+                            <td class="col-md-3"><%= users[currentUserIndex].username %></td>
+                            <td class="col-md-3"><%= users[currentUserIndex].university %></td>
+                            <td class="col-md-3"><%= users[currentUserIndex].overall_score %></td>
+                        </tr>
+                        <% users.forEach(function (user, i) { %>
+                            <tr class="clickable-row" id=<%= user.username %> >
+                                <td class="col-md-3"><%= i + 1 %></td>
+                                <td class="col-md-3"><%= user.username %></td>
+                                <td class="col-md-3"><%= user.university %></td>
+                                <td class="col-md-3"><%= user.overall_score %></td>
+                            </tr>
+                        <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } %>
+
+        </div>
+
+        <div class="alert alert-danger text-center" role="alert" id="error"></div>
     </div>
 
 
 </div>
-<!-- /#wrapper -->
 
 <!-- jQuery -->
 <script src="js/vendor/jquery.min.js"></script>
 <!-- Bootstrap Core JavaScript -->
 <script src="js/vendor/bootstrap.min.js"></script>
+
+<script>
+    var error = "<%= error %>";
+    $("document").ready(function () {
+        if (error !== "") {
+            $(".alert").attr("hidden", false);
+            $(".alert").text(error);
+        } else {
+            $(".alert").attr("hidden", true);
+        }
+    });
+</script>
 
 </body>
 

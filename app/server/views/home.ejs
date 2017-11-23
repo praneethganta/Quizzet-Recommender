@@ -26,6 +26,10 @@
             margin-right: 3%;
             font-size:14px;
         }
+
+        code {
+            font-size: 14px;
+        }
     </style>
 
     <script src="js/vendor/jquery.min.js"></script>
@@ -35,37 +39,9 @@
 <body>
 
 <script>
-    var numAttempts = parseInt("<%= questionInfo.num_choices / 2 %>");
-
-    var maxPoints = 0;
-    var penalty = 0;
-    var score = 0;
-    var weight = 0;
-    var weightUpdate = 0;
-    var level = "<%= questionInfo.level %>";
-    if (level === "Easy") {
-        maxPoints = 10;
-        penalty = -15;
-        weight = 50;
-    } else if (level === "Moderate") {
-        maxPoints = 20;
-        penalty = -10;
-        weight = 40;
-    } else if (level === "Difficult") {
-        maxPoints = 30;
-        penalty = -5;
-        weight = 30;
-    }
-
-    var question = "<%= question %>";
-    var answer = "<%= questionInfo.answer %>";
-    var topic = "<%= questionInfo.course_topic %>";
-    var result = false;
-    var attemptsLeft = numAttempts;
 
     function checkAnswer() {
         var choice = $('input[type=radio]:checked', '#myForm').val();
-        var answerId = answer.substring(6,7).charCodeAt(0)-64;
 
         var submitElement = document.getElementById("submit_button");
         var alertElement = document.getElementById("alert_text");
@@ -73,44 +49,39 @@
         var resultElement = document.getElementById("result");
         resultElement.removeAttribute("hidden");
 
-        if (parseInt(choice) === answerId){
-            alertElement.innerText = "Right answer!!! Please proceed to the next question.";
-            resultElement.classList.remove("alert-danger");
-            resultElement.classList.add("alert-success");
-            submitElement.setAttribute("disabled", true);
-            nextQuestion.removeAttribute("disabled");
-            result = true;
-            score = maxPoints;
-            weightUpdate = weight / (numAttempts - attemptsLeft);
+        var http = new XMLHttpRequest();
+        var url = "/verifyAnswer";
+        var data = JSON.stringify({userChoice: choice});
+        http.open("POST", url, false);
+        http.setRequestHeader("Content-Type", "application/json");
+        http.send(data);
 
-            var http = new XMLHttpRequest();
-            var url = "/updateWeights";
-            var data = JSON.stringify({topic: topic, weight: weightUpdate});
-            http.open("POST", url);
-            http.setRequestHeader("Content-Type", "application/json");
-            http.send(data);
-        } else {
-            attemptsLeft -= 1;
-            score = penalty;
-            if (!attemptsLeft) {
-                alertElement.innerText = "You've run out of attempts for this question! Please proceed to the next question.";
-                resultElement.classList.remove("alert-success");
-                resultElement.classList.add("alert-danger");
+        var response = JSON.parse(http.responseText);
+        if (!response.error) {
+            if (response.result){
+                alertElement.innerText = "Right answer!!! Please proceed to the next question.";
+                resultElement.classList.remove("alert-danger");
+                resultElement.classList.add("alert-success");
                 submitElement.setAttribute("disabled", true);
                 nextQuestion.removeAttribute("disabled");
             } else {
-                alertElement.innerText = "Wrong answer! Please try again.";
-                resultElement.classList.remove("alert-success")
-                resultElement.classList.add("alert-danger");
+                if (response.attemptsLeft < 1) {
+                    alertElement.innerText = "You've run out of attempts for this question! Please proceed to the next question.";
+                    resultElement.classList.remove("alert-success");
+                    resultElement.classList.add("alert-danger");
+                    submitElement.setAttribute("disabled", true);
+                    nextQuestion.removeAttribute("disabled");
+                } else {
+                    alertElement.innerText = "Wrong answer! Please try again.";
+                    resultElement.classList.remove("alert-success")
+                    resultElement.classList.add("alert-danger");
+                }
             }
+        } else {
+            alertElement.innerText = "Something went wrong! Please submit again.";
+            resultElement.classList.remove("alert-success");
+            resultElement.classList.add("alert-danger");
         }
-
-        var http = new XMLHttpRequest();
-        var url = "/logActivity";
-        var data = JSON.stringify({question: question, topic: topic, result: result, score: score});
-        http.open("POST", url);
-        http.setRequestHeader("Content-Type", "application/json");
-        http.send(data);
     }
 
     $(document).ready(function () {
@@ -308,7 +279,7 @@
                                 <img src="" alt="..." style="padding-left: 25px;" id ="avatar">
                             </div>
                             <div class="profile_info">
-                                    <h3 id="fullname" style="padding-left: 5px; padding-right: 5px; text-align: center;"></h3>
+                                    <h4 id="fullname" style="padding-left: 5px; padding-right: 5px; text-align: center;"></h4>
                             </div>
                             <script>
                                 var fullname = "<%= fullname %>";
@@ -324,7 +295,7 @@
                         </div>
                     </li>
                     <li>
-                        <a href="/home"><i class="fa fa-edit fa-fw"></i> Home</a>
+                        <a href="/home"><i class="fa fa-home" aria-hidden="true"></i> Home</a>
                     </li>
                     <li>
                         <a href="/history"><i class="fa fa-history" aria-hidden="true"></i> History</a>
@@ -347,7 +318,7 @@
                 <a class="list-group-item list-group-item-action" href="#">
                     <div class="media">
                         <div class="media-body">
-                            <h5><strong><code><%- question %></code></strong></h5>
+                            <h5><strong><code><%- questionInfo.question %></code></strong></h5>
                             <div class="text-muted smaller">
                                 <h5>Choose your answer from the options below:</h5>
                             </div>

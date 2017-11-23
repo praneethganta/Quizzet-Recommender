@@ -22,6 +22,11 @@
         .required-asterisk {
             color: red;
         }
+
+        i {
+            font-size: 10px;
+            ;
+        }
     </style>
 
 </head>
@@ -38,8 +43,8 @@
                 <div class="panel-body">
                     <div class="alert alert-danger text-center" role="alert" id="error"></div>
                     <script>
-                        var error = <%- JSON.stringify(error) %>;
-                        if(error == "Username is already taken. Please try again." || error == ""){
+                        var error = "<%= error %>";
+                        if(error === "Username is already taken. Please try again." || error === ""){
                             console.log(error);
                             document.getElementById("error").innerHTML = error;
                         }
@@ -67,8 +72,9 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="username">Username <span class="required-asterisk">*</span></label>
+                                <label for="username">Username <span class="required-asterisk">*</span><i> (Alpha-Numeric only!)</i></label>
                                 <input class="form-control" id="username" placeholder="boogieman123" name="username" type="text" required>
+                                <h5 id="usernameAlphaNum"></h5>
                             </div>
 
                             <div class="row">
@@ -211,7 +217,6 @@
 <script src="js/vendor/bootstrap.min.js"></script>
 
 <script>
-    var error = <%- JSON.stringify(error) %>;
     $("document").ready(function () {
         var passwordMatch = false;
         $('#password, #password2').on('keyup', function () {
@@ -224,15 +229,20 @@
             }
         });
 
+        var usernameAlphaNum = false;
+        $('#username').on('keyup', function () {
+            if (/^([a-zA-Z0-9]+)$/.test($('#username').val())) {
+                $('#usernameAlphaNum').html('Username is OK!').css('color', 'green');
+                usernameAlphaNum = true;
+            } else {
+                $('#usernameAlphaNum').html('Please stick to alpha-numeric values in username').css('color', 'red');
+                usernameAlphaNum = false;
+            }
+        });
+
         $('form').on('submit', function () {
             return passwordMatch;
         });
-
-        if (error !== "") {
-            $(".alert").attr("hidden", false);
-        } else {
-            $(".alert").attr("hidden", true);
-        }
     });
 </script>
 

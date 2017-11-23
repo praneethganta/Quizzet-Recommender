@@ -20,6 +20,7 @@ exports.updateActivity = function (user, activity, callback) {
             if (err) {
                 callback(false, "Error inserting into activity into table");
             } else {
+                updateScore(user);
                 callback(true, "User activity updated");
             }
         });
@@ -37,16 +38,38 @@ exports.updateWeights = function (user, topic, weight, callback) {
     });
 };
 
+exports.displayQuestion = function (user, score, callback) {
+    var level = 0;
+    if (score <=150) {
+        level = 1;
+    }
+    else if(score > 150 && score <=250) {
+        level = 2;
+    }
+    else {
+        level = 3;
+    }
+    weight_level = level * 100;
+    var tableName =  user + "_question_weights";
+    var query = "select question_id from " + tableName + " WHERE weight < $1;";
+    client.query(query, [weight_level], (err,result) => {
+        if (result.rows.length >= 1) {
+            var randomPick = Math.floor(Math.random() * result.rows.length);
+            var question_id = result.rows[randomPick].question_id;
+            client.query("select *from question_and_answer where question_id = $1", [question_id], (err,result) => {
+                if(err){
+                    callback(false, "Question not retrieved please reload");
+                }
+                else {
+                    callback(true, result.rows[0]);
+                }
 
-exports.displayQuestion = function (questionId, callback) {
-    client.query("SELECT * from question_and_answer where question_id =$1", [questionId], (err,result) => {
-        if (result.rows.length === 1) {
-            callback(true, //JSON.stringify(result.rows[0]));
-                result.rows[0]);
+            });
+
         } else {
-            callback(false, "Invalid Question Id.");
+            callback(false, "Question not retrieved please reload");
         }
-    })
+    });
 };
 
 exports.createWeightsTable = function (user, callback) {
@@ -55,14 +78,14 @@ exports.createWeightsTable = function (user, callback) {
     }
 
     var tablename =  user + "_question_weights";
-    var queryString = "CREATE TABLE "+ tablename + "(question_id integer, course_topic text, level text, weight integer);";
+    var queryString = "CREATE TABLE "+ tablename + "(question_id integer, course_topic text, weight integer);";
 
     client.query(queryString, (err,result) =>{
         if (err) {
             callback(false, err);
         }
         else{
-            var query = "INSERT INTO "+ tablename + " SELECT question_id, course_topic, level, weight from dummy_question_weights;"
+            var query = "INSERT INTO "+ tablename + " SELECT question_id, course_topic, weight from dummy_question_weights;"
             client.query(query, (errr,result) => {
                 if (errr) {
                     callback(false, errr);
@@ -78,15 +101,55 @@ exports.createWeightsTable = function (user, callback) {
 
 };
 
-exports.getScore = function (user, callback) {
-    if ((user.indexOf('.')>-1) || (user.indexOf('-')>-1)){
-        user.replace(/[.-]/g,'');
-    }
-    client.query("SELECT sum(score) from user_history group by username having username=$1;",[user],(err,result) =>{
-        if (result.rows.length === 1) {
-            callback(true, result.rows[0]);
+function updateScore(user) {
+    client.query("update user_complete_details set overall_score = t.overall_score from (SELECT sum(score) as overall_score from user_history group by username having username= $1) t where username = $1;",[user],(err,result) =>{
+        if (err) {
+            console.log(err);
         } else {
-            callback(false, 0);
+            console.log(result);
+        }
+    })
+
+}
+
+exports.getScore = function (user, callback) {
+    client.query("SELECT overall_score from user_complete_details where  username=$1;", [user], (err, result) => {
+        if (err) {
+            callback(false, "Error retrieving score! Please reload.");
+        } else {
+            if (result.rows.length === 1) {
+                callback(true, result.rows[0].overall_score);
+            } else {
+                callback(false, "Error retrieving score! Please reload.");
+            }
+        }
+    })
+};
+
+exports.getHistory = function (user, callback) {
+    client.query("SELECT * FROM user_history WHERE username=$1;", [user], (err, result) => {
+        if (err) {
+            callback(false, "Error retrieving logs! Please reload.");
+        } else {
+            if (result.rows.length) {
+                callback(true, result.rows);
+            } else {
+                callback(false, "Error retrieving logs! Please reload.");
+            }
+        }
+    })
+};
+
+exports.getLeaderboard = function (callback) {
+    client.query("SELECT username, university, overall_score FROM user_complete_details ORDER BY overall_score DESC;", (err, result) => {
+        if (err) {
+            callback(false, "Error retrieving user data! Please reload.");
+        } else {
+            if (result.rows.length) {
+                callback(true, result.rows);
+            } else {
+                callback(false, "Error retrieving user data! Please reload.");
+            }
         }
     })
 };
