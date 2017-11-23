@@ -38,6 +38,34 @@ exports.updateWeights = function (user, topic, weight, callback) {
     });
 };
 
+
+exports.updateComment = function (username, question_id, comment, callback) {
+    client.query("INSERT INTO question_comments (username, question_id, comment) values ($1, $2, $3)", [username, question_id, comment], (err,result) => {
+       if(err){
+           callback(false, "none");
+       }
+       else {
+           callback(true, "success");
+       }
+    });
+}
+
+exports.getAllComments = function (question_id, callback) {
+    client.query("select username, comment from question_comments where question_id = $1 order by time", [question_id], (err,result) => {
+        if(err){
+            callback(false, "none");
+        }
+        else {
+            if(result != null && result.rows.length >= 1){
+                callback(true, result.rows);
+            }
+            else{
+                callback(false, "none");
+            }
+        }
+    });
+}
+
 exports.displayQuestion = function (user, score, callback) {
     var level = 0;
     if (score <=150) {

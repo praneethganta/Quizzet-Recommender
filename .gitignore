@@ -1,2 +1,4 @@
 node_modules/*
 .idea/*
+app/server/views/history_*
+app/server/views/.history_*
