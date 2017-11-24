@@ -19,6 +19,7 @@ var answer = null;
 var topic = null;
 var ansResult = null;
 var attemptsLeft = null;
+var question_id = null;
 
 var sortCriteria = "global";
 
@@ -122,6 +123,7 @@ module.exports = function(app) {
 
                     RE.displayQuestion(req.session.username,score, function (status, result) {
                         if (status) {
+                            question_id = result.question_id;
                             question = result.question.trim();
                             if (question[0] === '"') {
                                 question = question.substring(1, question.length - 1);
@@ -318,6 +320,7 @@ module.exports = function(app) {
         }
     });
 
+<<<<<<< HEAD
     app.get('/history', function(req, res) {
         if (req.session.loggedin === undefined || req.session.loggedin === false){
             res.redirect('/');
@@ -351,14 +354,42 @@ module.exports = function(app) {
         }
     });
 
+    app.post('/updateComments', function (req, res) {
+        RE.updateComment(req.session.username, question_id, req.body.comment, function (status, result) {
+           if(status) {
+               res.send(true);
+           }
+           else {
+               res.send(false);
+           }
+        });
+
+    });
+
+
+    app.post('/displayComments', function (req, res) {
+        RE.getAllComments(question_id, function (status, result) {
+            if(status) {
+                res.send(result);
+            }
+            else {
+                res.send([]);
+            }
+        });
+
+    });
+
     app.get('/logout', function(req, res){
         if (req.session.loggedin === true) {
-            req.session.username = null;
+            req.session.username = undefined;
             req.session.fullname = "";
             req.session.gender = "";
             req.session.loggedin = false;
+            res.redirect('/');
         }
-        res.redirect('/');
+        else {
+           res.redirect('/');
+        }
     });
 
     app.post('/verifyAnswer', function (req, res) {

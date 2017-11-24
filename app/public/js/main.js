@@ -3,10 +3,10 @@
 
 
 /*$(document).ready(function(){
-  load_charts();
+  updateComments();
 });
 
-function load_charts(){
+function updateComments(){
   /*$.ajax({
     type: "POST",
     data: {},
