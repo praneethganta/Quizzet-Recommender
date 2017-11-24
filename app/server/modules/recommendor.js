@@ -153,3 +153,42 @@ exports.getLeaderboard = function (callback) {
         }
     })
 };
+
+exports.addRemoveFriend = function (currentUser, friend, requestType, callback) {
+    if (requestType === "add") {
+        client.query("INSERT INTO friends VALUES ($1, $2);", [currentUser, friend], (err, result) => {
+            if (err) {
+                callback(false, "Error adding friend! Please reload.");
+            } else {
+                callback(true, "");
+            }
+        });
+    } else if (requestType === "remove") {
+        client.query("DELETE FROM friends WHERE username = $1 AND friend = $2;", [currentUser, friend], (err, result) => {
+            if (err) {
+                callback(false, "Error removing friend! Please reload.");
+            } else {
+                callback(true, "");
+            }
+        });
+    }
+};
+
+exports.getFriends = function (currentUser, callback) {
+    client.query("SELECT friend FROM friends WHERE username = $1;", [currentUser], (err, result) => {
+        if (err) {
+            callback(false, "Error retrieving friends! Please reload.");
+        } else {
+            if (result.rows.length) {
+                var arr = [];
+                result.rows.forEach(function (row) {
+                    arr.push(row.friend);
+                });
+
+                callback(true, arr);
+            } else {
+                callback(true, []);
+            }
+        }
+    });
+};
