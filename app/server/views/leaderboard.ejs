@@ -280,6 +280,7 @@
                                 <th>Username</th>
                                 <th>University</th>
                                 <th>Score</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -288,10 +289,15 @@
                                 <% if (sortCriteria === "global" || (sortCriteria === "university" && user.university === users[currentUserIndex].university)) { %>
                                     <% i++; %>
                                     <tr class="clickable-row" id=<%= user.username %> >
-                                        <td class="col-md-3"><%= i %></td>
-                                        <td class="col-md-3"><%= user.username %></td>
-                                        <td class="col-md-3"><%= user.university %></td>
-                                        <td class="col-md-3"><%= user.overall_score %></td>
+                                        <td class="col-md-2"><%= i %></td>
+                                        <td class="col-md-2"><%= user.username %></td>
+                                        <td class="col-md-2"><%= user.university %></td>
+                                        <td class="col-md-2"><%= user.overall_score %></td>
+                                        <% if (friends.includes(user.username)) { %>
+                                            <td class="col-md-2"><button class="btn btn-danger addFriend friend" id="<%= "add" + user.username %>" ><i class="fa fa-user-times" aria-hidden="true"></i></button></td>
+                                        <% } else { %>
+                                            <td class="col-md-2"><button class="btn btn-success addFriend" id="<%= "add" + user.username %>" ><i class="fa fa-user-plus" aria-hidden="true"></i></button></td>
+                                        <% } %>
                                     </tr>
                                 <% } %>
                             <% }) %>
@@ -316,6 +322,7 @@
     var error = "<%= error %>";
     $("document").ready(function () {
         $("#sortCriteria").val("<%= sortCriteria %>");
+        $("#add" + "<%= users[currentUserIndex].username %>").remove();
 
         if (error !== "") {
             $(".alert").attr("hidden", false);
@@ -333,6 +340,49 @@
             http.send(data);
 
             window.open("/leaderboard", "_self");
+        })
+
+        $(".addFriend").on("click", function () {
+            var friendName = this.id.substring(3);
+            var buttonElement = $("#add" + friendName);
+
+            var http = new XMLHttpRequest();
+            var url = "/addRemoveFriend";
+            http.open("POST", url, false);
+            http.setRequestHeader("Content-Type", "application/json");
+
+            var data = null;
+            var response = null;
+
+            if (buttonElement.hasClass("friend")) {
+                data = JSON.stringify({username: friendName, type: "remove"});
+                http.send(data);
+
+                response = JSON.parse(http.responseText);
+                if (response.error === "") {
+                    $(".alert").attr("hidden", true);
+                    buttonElement
+                        .removeClass("btn-danger friend").addClass("btn-success")
+                        .children("i").replaceWith("<i class=\"fa fa-user-plus\" aria-hidden=\"true\"></i>");
+                } else {
+                    $(".alert").attr("hidden", false);
+                    $(".alert").text(response.error);
+                }
+            } else {
+                data = JSON.stringify({username: friendName, type: "add"});
+                http.send(data);
+
+                response = JSON.parse(http.responseText);
+                if (response.error === "") {
+                    $(".alert").attr("hidden", true);
+                    buttonElement
+                        .removeClass("btn-success").addClass("btn-danger friend")
+                        .children("i").replaceWith("<i class=\"fa fa-user-times\" aria-hidden=\"true\"></i>");
+                } else {
+                    $(".alert").attr("hidden", false);
+                    $(".alert").text(response.error);
+                }
+            }
         });
     });
 </script>
