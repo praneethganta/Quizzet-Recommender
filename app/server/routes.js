@@ -368,4 +368,22 @@ module.exports = function(app) {
         }
     });
 
+    app.post('/fetchdata', function (req, res) {
+        if (req.session.loggedin === undefined || req.session.loggedin === false){
+            res.redirect('/');
+        } else {
+            RE.getScoreTimeline(req.session.username, function(status, result) {
+                if (status) {
+                    console.log(result);
+                    res.status(200).send(JSON.stringify({data: result}));
+                }
+                else {
+                    res.status(500).send('Error loading index.html');
+                }
+
+            });
+        }
+
+    });
+
 };

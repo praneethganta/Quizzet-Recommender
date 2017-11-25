@@ -153,3 +153,37 @@ exports.getLeaderboard = function (callback) {
         }
     })
 };
+
+
+function formatDate(date) {
+    var d = new Date(date),
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
+
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
+
+    return [year, month, day].join('-');
+}
+
+exports.getScoreTimeline = function (user, callback) {
+    client.query("SELECT sum(score), date(time) FROM user_history WHERE username= $1 GROUP BY date;", [user], (err, result) => {
+        if (err) {
+            callback(false, "Error retrieving user's score trend! Please reload.");
+        } else {
+            if (result.rows.length) {
+                xaxis = ['x'];
+                yaxis = [user];
+                var rows = result.rows;
+                for (var i = 0; i< rows.length; i++) {
+                    xaxis.push(formatDate(rows[i].date));
+                    yaxis.push(rows[i].sum);
+                }
+                callback(true, [xaxis,yaxis]);
+            } else {
+                callback(false, "Error retrieving logs! Please reload.");
+            }
+        }
+    })
+};
