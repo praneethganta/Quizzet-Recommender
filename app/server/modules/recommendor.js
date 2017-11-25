@@ -84,7 +84,7 @@ exports.displayQuestion = function (user, score, callback) {
         if (result.rows.length >= 1) {
             var randomPick = Math.floor(Math.random() * result.rows.length);
             var question_id = result.rows[randomPick].question_id;
-            client.query("select *from question_and_answer where question_id = $1", [10], (err,result) => {
+            client.query("select *from question_and_answer where question_id = $1", [question_id], (err,result) => {
                 if(err){
                     callback(false, "Question not retrieved please reload");
                 }
