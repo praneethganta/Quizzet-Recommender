@@ -19,6 +19,9 @@ var answer = null;
 var topic = null;
 var ansResult = null;
 var attemptsLeft = null;
+var question_id = null;
+
+var sortCriteria = "global";
 
 module.exports = function(app) {
 
@@ -120,6 +123,7 @@ module.exports = function(app) {
 
                     RE.displayQuestion(req.session.username,score, function (status, result) {
                         if (status) {
+                            question_id = result.question_id;
                             question = result.question.trim();
                             if (question[0] === '"') {
                                 question = question.substring(1, question.length - 1);
@@ -240,90 +244,151 @@ module.exports = function(app) {
     });
 
     app.get('/leaderboard', function(req, res){
-        var currentUserIndex = 0;
+        if (req.session.loggedin === undefined || req.session.loggedin === false){
+            res.redirect('/');
+        } else {
+            var currentUserIndex = 0;
+            var friends = null;
 
-        RE.getScore(req.session.username, function (status, result) {
-            if (status) {
-                score = result;
-                RE.getLeaderboard(function (status, result) {
-                    if (status) {
-                        var users = result;
+            RE.getScore(req.session.username, function (status, result) {
+                if (status) {
+                    score = result;
 
-                        users.forEach(function (user, index) {
-                            if (user.username === req.session.username) {
-                                currentUserIndex = index;
-                            }
-                        });
+                    RE.getFriends(req.session.username, function (status, result) {
+                        if (status) {
+                            friends = result;
 
-                        res.render('leaderboard', {
-                            score: score,
-                            users: users,
-                            currentUserIndex: currentUserIndex,
-                            fullname: req.session.fullname,
-                            gender: req.session.gender,
-                            error: ""
-                        });
-                    } else {
-                        res.render('leaderboard', {
-                            score: score,
-                            users: null,
-                            currentUserIndex: currentUserIndex,
-                            fullname: req.session.fullname,
-                            gender: req.session.gender,
-                            error: result
-                        });
-                    }
-                });
-            } else {
-                res.render('leaderboard', {
-                    score: "Score not updated please reload",
-                    users: null,
-                    currentUserIndex: currentUserIndex,
-                    fullname: req.session.fullname,
-                    gender: req.session.gender,
-                    error: result
-                });
-            }
-        });
+                            RE.getLeaderboard(function (status, result) {
+                                if (status) {
+                                    var users = result;
+
+                                    users.forEach(function (user, index) {
+                                        if (user.username === req.session.username) {
+                                            currentUserIndex = index;
+                                        }
+                                    });
+
+                                    res.render('leaderboard', {
+                                        score: score,
+                                        users: users,
+                                        currentUserIndex: currentUserIndex,
+                                        sortCriteria: sortCriteria,
+                                        friends: friends,
+                                        fullname: req.session.fullname,
+                                        gender: req.session.gender,
+                                        error: ""
+                                    });
+                                } else {
+                                    res.render('leaderboard', {
+                                        score: score,
+                                        users: null,
+                                        currentUserIndex: currentUserIndex,
+                                        sortCriteria: sortCriteria,
+                                        friends: friends,
+                                        fullname: req.session.fullname,
+                                        gender: req.session.gender,
+                                        error: result
+                                    });
+                                }
+                            });
+                        } else {
+                            res.render('leaderboard', {
+                                score: score,
+                                users: users,
+                                currentUserIndex: currentUserIndex,
+                                sortCriteria: sortCriteria,
+                                friends: friends,
+                                fullname: req.session.fullname,
+                                gender: req.session.gender,
+                                error: result
+                            });
+                        }
+                    });
+                } else {
+                    res.render('leaderboard', {
+                        score: "Score not updated please reload",
+                        users: null,
+                        currentUserIndex: currentUserIndex,
+                        sortCriteria: sortCriteria,
+                        friends: friends,
+                        fullname: req.session.fullname,
+                        gender: req.session.gender,
+                        error: result
+                    });
+                }
+            });
+        }
     });
 
-    app.get('/history', function(req, res){
-        RE.getScore(req.session.username, function (status, result) {
-            if (status) {
-                score = result;
-                RE.getHistory(req.session.username, function (status, result) {
-                    if (status) {
-                        res.render('history', {
-                            score: score,
-                            logs: result,
-                            fullname: req.session.fullname,
-                            gender: req.session.gender,
-                            error: ""
-                        });
-                    } else {
-                        res.render('history', {
-                            score: score,
-                            logs: null,
-                            fullname: req.session.fullname,
-                            gender: req.session.gender,
-                            error: result
-                        });
-                    }
-                });
-            } else {
-                res.render('history', {score: "Score not updated please reload", logs: null, fullname: req.session.fullname, gender: req.session.gender, error: result});
+    app.get('/history', function(req, res) {
+        if (req.session.loggedin === undefined || req.session.loggedin === false){
+            res.redirect('/');
+        } else {
+            RE.getScore(req.session.username, function (status, result) {
+                if (status) {
+                    score = result;
+                    RE.getHistory(req.session.username, function (status, result) {
+                        if (status) {
+                            res.render('history', {
+                                score: score,
+                                logs: result,
+                                fullname: req.session.fullname,
+                                gender: req.session.gender,
+                                error: ""
+                            });
+                        } else {
+                            res.render('history', {
+                                score: score,
+                                logs: null,
+                                fullname: req.session.fullname,
+                                gender: req.session.gender,
+                                error: result
+                            });
+                        }
+                    });
+                } else {
+                    res.render('history', {score: "Score not updated please reload", logs: null, fullname: req.session.fullname, gender: req.session.gender, error: result});
+                }
+            });
+        }
+    });
+
+    app.post('/updateComments', function (req, res) {
+        RE.updateComment(req.session.username, question_id, req.body.comment, function (status, result) {
+           if(status) {
+               res.send(true);
+           }
+           else {
+               res.send(false);
+           }
+        });
+
+    });
+
+
+    app.post('/displayComments', function (req, res) {
+        RE.getAllComments(question_id, function (status, result) {
+            if(status) {
+                res.send(result);
+            }
+            else {
+                res.send([]);
             }
         });
+
     });
 
     app.get('/logout', function(req, res){
         if (req.session.loggedin === true) {
-            req.session.username = null;
+            req.session.username = undefined;
             req.session.fullname = "";
             req.session.gender = "";
             req.session.loggedin = false;
+            res.redirect('/');
         }
-        res.redirect('/');
+        else {
+           res.redirect('/');
+        }
     });
 
     app.post('/verifyAnswer', function (req, res) {
@@ -369,10 +434,10 @@ module.exports = function(app) {
     });
 
     app.post('/fetchdata', function (req, res) {
-        if (req.session.loggedin === undefined || req.session.loggedin === false){
+        if (req.session.loggedin === undefined || req.session.loggedin === false) {
             res.redirect('/');
         } else {
-            RE.getScoreTimeline(req.session.username, function(status, result) {
+            RE.getScoreTimeline(req.session.username, function (status, result) {
                 if (status) {
                     console.log(result);
                     res.status(200).send(JSON.stringify({data: result}));
@@ -383,7 +448,21 @@ module.exports = function(app) {
 
             });
         }
+    });
 
+    app.post('/updateLeaderboard', function(req, res){
+        if (req.session.loggedin === true) {
+            sortCriteria = req.body.sortCriteria;
+            res.status(200).send();
+        }
+    });
+
+    app.post('/addRemoveFriend', function(req, res){
+        if (req.session.loggedin === true) {
+            RE.addRemoveFriend(req.session.username, req.body.username, req.body.type, function (success, result) {
+                res.status(200).send({error: result});
+            });
+        }
     });
 
 };

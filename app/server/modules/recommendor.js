@@ -38,6 +38,34 @@ exports.updateWeights = function (user, topic, weight, callback) {
     });
 };
 
+
+exports.updateComment = function (username, question_id, comment, callback) {
+    client.query("INSERT INTO question_comments (username, question_id, comment) values ($1, $2, $3)", [username, question_id, comment], (err,result) => {
+       if(err){
+           callback(false, "none");
+       }
+       else {
+           callback(true, "success");
+       }
+    });
+};
+
+exports.getAllComments = function (question_id, callback) {
+    client.query("select username, comment from question_comments where question_id = $1 order by time", [question_id], (err,result) => {
+        if(err){
+            callback(false, "none");
+        }
+        else {
+            if(result != null && result.rows.length >= 1){
+                callback(true, result.rows);
+            }
+            else{
+                callback(false, "none");
+            }
+        }
+    });
+};
+
 exports.displayQuestion = function (user, score, callback) {
     var level = 0;
     if (score <=150) {
@@ -154,7 +182,6 @@ exports.getLeaderboard = function (callback) {
     })
 };
 
-
 function formatDate(date) {
     var d = new Date(date),
         month = '' + (d.getMonth() + 1),
@@ -176,14 +203,53 @@ exports.getScoreTimeline = function (user, callback) {
                 xaxis = ['x'];
                 yaxis = [user];
                 var rows = result.rows;
-                for (var i = 0; i< rows.length; i++) {
+                for (var i = 0; i < rows.length; i++) {
                     xaxis.push(formatDate(rows[i].date));
                     yaxis.push(rows[i].sum);
                 }
-                callback(true, [xaxis,yaxis]);
+                callback(true, [xaxis, yaxis]);
             } else {
                 callback(false, "Error retrieving logs! Please reload.");
             }
         }
-    })
+    });
+};
+
+exports.addRemoveFriend = function (currentUser, friend, requestType, callback) {
+    if (requestType === "add") {
+        client.query("INSERT INTO friends VALUES ($1, $2);", [currentUser, friend], (err, result) => {
+            if (err) {
+                callback(false, "Error adding friend! Please reload.");
+            } else {
+                callback(true, "");
+            }
+        });
+    } else if (requestType === "remove") {
+        client.query("DELETE FROM friends WHERE username = $1 AND friend = $2;", [currentUser, friend], (err, result) => {
+            if (err) {
+                callback(false, "Error removing friend! Please reload.");
+            } else {
+                callback(true, "");
+            }
+        });
+    }
+};
+
+exports.getFriends = function (currentUser, callback) {
+    client.query("SELECT friend FROM friends WHERE username = $1;", [currentUser], (err, result) => {
+        if (err) {
+            callback(false, "Error retrieving friends! Please reload.");
+        } else {
+            if (result.rows.length) {
+                var arr = [];
+                result.rows.forEach(function (row) {
+                    arr.push(row.friend);
+                });
+
+                callback(true, arr);
+            } else {
+                callback(true, []);
+            }
+        }
+    });
 };

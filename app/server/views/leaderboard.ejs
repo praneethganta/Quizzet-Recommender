@@ -21,8 +21,12 @@
     <link href="css/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
 
     <style>
-        #<%= users[currentUserIndex].username %>, #currentUser {
+        #<%= users[currentUserIndex].username %> {
             background-color: lightgray;
+        }
+
+        .form-group > * {
+            margin:5px 3px;
         }
     </style>
 
@@ -244,46 +248,68 @@
     <div id="page-wrapper">
         <br/>
         <div class="card mb-3">
-            <div class="card-header">
-                <h4><i class="fa fa-sort-amount-desc" aria-hidden="true"></i> Leaderboard :</h4>
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card-header">
+                        <h4><i class="fa fa-sort-amount-desc" aria-hidden="true"></i> Leaderboard :</h4>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <form class="form-inline">
+                        <div class="form-group">
+                            <label for="sortCriteria">Sort By:</label>
+                            <select class="form-control" id="sortCriteria" name="changeSortCriteria(this.value)" onchange="">
+                                <option value="global">Global</option>
+                                <option value="university">University</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
             </div>
+
+            <script>
+
+            </script>
 
             <% if (error === "") { %>
                 <div>
                     <table class="table table-hover">
                         <thead>
-                        <tr>
-                            <th>Rank</th>
-                            <th>Username</th>
-                            <th>University</th>
-                            <th>Score</th>
-                        </tr>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Username</th>
+                                <th>University</th>
+                                <th>Score</th>
+                                <th></th>
+                            </tr>
                         </thead>
                         <tbody>
-                        <tr class="clickable-row" id="currentUser">
-                            <td class="col-md-3"><%= currentUserIndex + 1 %></td>
-                            <td class="col-md-3"><%= users[currentUserIndex].username %></td>
-                            <td class="col-md-3"><%= users[currentUserIndex].university %></td>
-                            <td class="col-md-3"><%= users[currentUserIndex].overall_score %></td>
-                        </tr>
-                        <% users.forEach(function (user, i) { %>
-                            <tr class="clickable-row" id=<%= user.username %> >
-                                <td class="col-md-3"><%= i + 1 %></td>
-                                <td class="col-md-3"><%= user.username %></td>
-                                <td class="col-md-3"><%= user.university %></td>
-                                <td class="col-md-3"><%= user.overall_score %></td>
-                            </tr>
-                        <% }) %>
+                            <% var i = 0; %>
+                            <% users.forEach(function (user) { %>
+                                <% if (sortCriteria === "global" || (sortCriteria === "university" && user.university === users[currentUserIndex].university)) { %>
+                                    <% i++; %>
+                                    <tr class="clickable-row" id=<%= user.username %> >
+                                        <td class="col-md-2"><%= i %></td>
+                                        <td class="col-md-2"><%= user.username %></td>
+                                        <td class="col-md-2"><%= user.university %></td>
+                                        <td class="col-md-2"><%= user.overall_score %></td>
+                                        <% if (friends.includes(user.username)) { %>
+                                            <td class="col-md-2"><button class="btn btn-danger addFriend friend" id="<%= "add" + user.username %>" ><i class="fa fa-user-times" aria-hidden="true"></i></button></td>
+                                        <% } else { %>
+                                            <td class="col-md-2"><button class="btn btn-success addFriend" id="<%= "add" + user.username %>" ><i class="fa fa-user-plus" aria-hidden="true"></i></button></td>
+                                        <% } %>
+                                    </tr>
+                                <% } %>
+                            <% }) %>
                         </tbody>
                     </table>
                 </div>
             <% } %>
 
         </div>
-
+        <br/>
         <div class="alert alert-danger text-center" role="alert" id="error"></div>
     </div>
-
 
 </div>
 
@@ -295,12 +321,69 @@
 <script>
     var error = "<%= error %>";
     $("document").ready(function () {
+        $("#sortCriteria").val("<%= sortCriteria %>");
+        $("#add" + "<%= users[currentUserIndex].username %>").remove();
+
         if (error !== "") {
             $(".alert").attr("hidden", false);
             $(".alert").text(error);
         } else {
             $(".alert").attr("hidden", true);
         }
+
+        $("#sortCriteria").on("change", function () {
+            var http = new XMLHttpRequest();
+            var url = "/updateLeaderboard";
+            var data = JSON.stringify({sortCriteria: this.value});
+            http.open("POST", url, false);
+            http.setRequestHeader("Content-Type", "application/json");
+            http.send(data);
+
+            window.open("/leaderboard", "_self");
+        })
+
+        $(".addFriend").on("click", function () {
+            var friendName = this.id.substring(3);
+            var buttonElement = $("#add" + friendName);
+
+            var http = new XMLHttpRequest();
+            var url = "/addRemoveFriend";
+            http.open("POST", url, false);
+            http.setRequestHeader("Content-Type", "application/json");
+
+            var data = null;
+            var response = null;
+
+            if (buttonElement.hasClass("friend")) {
+                data = JSON.stringify({username: friendName, type: "remove"});
+                http.send(data);
+
+                response = JSON.parse(http.responseText);
+                if (response.error === "") {
+                    $(".alert").attr("hidden", true);
+                    buttonElement
+                        .removeClass("btn-danger friend").addClass("btn-success")
+                        .children("i").replaceWith("<i class=\"fa fa-user-plus\" aria-hidden=\"true\"></i>");
+                } else {
+                    $(".alert").attr("hidden", false);
+                    $(".alert").text(response.error);
+                }
+            } else {
+                data = JSON.stringify({username: friendName, type: "add"});
+                http.send(data);
+
+                response = JSON.parse(http.responseText);
+                if (response.error === "") {
+                    $(".alert").attr("hidden", true);
+                    buttonElement
+                        .removeClass("btn-success").addClass("btn-danger friend")
+                        .children("i").replaceWith("<i class=\"fa fa-user-times\" aria-hidden=\"true\"></i>");
+                } else {
+                    $(".alert").attr("hidden", false);
+                    $(".alert").text(response.error);
+                }
+            }
+        });
     });
 </script>
 
