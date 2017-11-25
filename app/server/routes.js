@@ -320,7 +320,6 @@ module.exports = function(app) {
         }
     });
 
-<<<<<<< HEAD
     app.get('/history', function(req, res) {
         if (req.session.loggedin === undefined || req.session.loggedin === false){
             res.redirect('/');
