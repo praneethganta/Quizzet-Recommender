@@ -22,6 +22,7 @@ var attemptsLeft = null;
 var question_id = null;
 
 var sortCriteria = "global";
+var profileData = {};
 
 module.exports = function(app) {
 
@@ -434,17 +435,29 @@ module.exports = function(app) {
     });
 
     app.post('/fetchdata', function (req, res) {
+        profileData = {};
         if (req.session.loggedin === undefined || req.session.loggedin === false) {
             res.redirect('/');
         } else {
             RE.getScoreTimeline(req.session.username, function (status, result) {
                 if (status) {
-                    console.log(result);
-                    res.status(200).send(JSON.stringify({data: result}));
+                    profileData["timeSeries"] = result;
+                    RE.getAllActivityCounts(req.session.username, function(status,result){
+                        if(status){
+                            //console.log(result);
+                            profileData["stackedBarChart"] = result;
+                            res.status(200).send(JSON.stringify(profileData));
+                        }
+                        else{
+                            res.status(500).send('Error loading Bar Chart Data.');
+                        }
+
+                    });
+
+                }else {
+                    res.status(500).send('Error loading Time series data.');
                 }
-                else {
-                    res.status(500).send('Error loading index.html');
-                }
+
 
             });
         }
