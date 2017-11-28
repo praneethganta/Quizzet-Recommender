@@ -12,6 +12,7 @@ var bodyParser = require('body-parser');
 var errorHandler = require('errorhandler');
 var morgan       = require('morgan');
 var app = express();
+var math = require('mathjs');
 
 app.use(morgan('dev'));
 app.locals.pretty = true;

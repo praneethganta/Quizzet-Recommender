@@ -48,7 +48,7 @@ exports.updateComment = function (username, question_id, comment, callback) {
            callback(true, "success");
        }
     });
-}
+};
 
 exports.getAllComments = function (question_id, callback) {
     client.query("select username, comment from question_comments where question_id = $1 order by time", [question_id], (err,result) => {
@@ -64,7 +64,7 @@ exports.getAllComments = function (question_id, callback) {
             }
         }
     });
-}
+};
 
 exports.displayQuestion = function (user, score, callback) {
     var level = 0;
@@ -180,6 +180,103 @@ exports.getLeaderboard = function (callback) {
             }
         }
     })
+};
+
+function formatDate(date) {
+    var dt = new Date(date),
+        month = '' + (dt.getMonth() + 1),
+        day = '' + dt.getDate(),
+        year = dt.getFullYear();
+
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
+
+    return [year, month, day].join('-');
+}
+
+exports.getScoreTimeline = function (user, callback) {
+    client.query("SELECT sum(score), date(time) FROM user_history WHERE username= $1 GROUP BY date;", [user], (err, result) => {
+        if (err) {
+            callback(false, "Error retrieving user's score trend! Please reload.");
+        } else {
+            if (result.rows.length) {
+                xaxis = ['x'];
+                yaxis = [user];
+                var rows = result.rows;
+                for (var i = 0; i < rows.length; i++) {
+                    xaxis.push(formatDate(rows[i].date));
+                    yaxis.push(rows[i].sum);
+                }
+                callback(true, [xaxis, yaxis]);
+            } else {
+                callback(false, "Error retrieving logs! Please reload.");
+            }
+        }
+    });
+};
+
+Array.prototype.unique = function()
+{
+    var tmp = {}, out = [];
+    for(var i = 0, n = this.length; i < n; ++i)
+    {
+        if(!tmp[this[i]]) { tmp[this[i]] = true; out.push(this[i]); }
+    }
+    return out;
+}
+function zeros([rows, cols]) {
+    var x = new Array(rows);
+    for (var i =0; i<rows; i++){
+        x[i] = new Array(cols);
+        for (var j=0; j<cols; j++){
+            x[i][j] = 0;
+        }
+    }
+    return x;
+}
+
+exports.getAllActivityCounts = function(user, callback){
+    client.query('select username, date(time) "day", count( distinct question) from user_history group by username,2 order by 2', (err,res) => {
+        if (err) {
+            console.log(err.stack)
+        } else {
+            var values = res.rows;
+            dates = [];
+            usernames = [];
+            for(var i = 0; i <values.length;i++) {
+                dates.push(String(values[i]["day"]));
+            }
+            for(var i = 0; i <values.length;i++) {
+                usernames.push(values[i]["username"]);
+            }
+
+            uniqueDates = dates.unique();
+            uniqueUsers = usernames.unique();
+            dataMatrix = zeros([uniqueUsers.length*2,uniqueDates.length]);
+            //console.log(dataMatrix);
+
+            for (var i = 0;i <values.length;i++){
+                dataMatrix[uniqueUsers.indexOf(values[i]["username"])*2][uniqueDates.indexOf(String(values[i]["day"]))] = values[i]["count"];
+            }
+            //console.log(dataMatrix);
+            var finalDates= ['x'];
+            var finalData = [];
+            for(var i = 0;i<uniqueDates.length;i++){
+                uniqueDates[i] = formatDate(uniqueDates[i]);
+            }
+            finalDates.push.apply(finalDates,uniqueDates);
+            finalData.push(finalDates);
+            for (var i =0;i <uniqueUsers.length;i++){
+                var row = [uniqueUsers[i]+"_questions"];
+                var row1 = [uniqueUsers[i]+"_links"];
+                row.push.apply(row,dataMatrix[i*2]);
+                row1.push.apply(row1, dataMatrix[(i*2)+1]);
+                finalData.push(row);
+                finalData.push(row1);
+            }
+            callback(true,finalData);
+        }
+    });
 };
 
 exports.addRemoveFriend = function (currentUser, friend, requestType, callback) {
