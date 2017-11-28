@@ -402,7 +402,7 @@ module.exports = function(app) {
                 qScore = maxPoints;
                 weightUpdate = weight / (numAttempts - attemptsLeft);
 
-                RE.updateWeights(req.session.username, topic, weight, function (status, result) {
+                RE.updateWeights(req.session.username, topic, weightUpdate, function (status, result) {
                     if (status) {
                         activity = {question: question, topic: topic, result: ansResult, score: qScore};
                         RE.updateActivity(req.session.username, activity, function (status, result) {
@@ -420,15 +420,36 @@ module.exports = function(app) {
                 attemptsLeft -= 1;
                 qScore = penalty;
 
-                activity = {question: question, topic: topic, result: ansResult, score: qScore};
-                RE.updateActivity(req.session.username, activity, function (status, result) {
-                    if (status) {
-                        res.status(200).send(JSON.stringify({result: ansResult, attemptsLeft: attemptsLeft, error: false}));
-                    } else {
-                        attemptsLeft += 1;
-                        res.status(200).send(JSON.stringify({result: ansResult, attemptsLeft: attemptsLeft, error: true}));
-                    }
-                });
+                if (attemptsLeft < 1) {
+                    weightUpdate = 0 - weight;
+
+                    RE.updateWeights(req.session.username, topic, weightUpdate, function (status, result) {
+                        if (status) {
+                            activity = {question: question, topic: topic, result: ansResult, score: qScore};
+                            RE.updateActivity(req.session.username, activity, function (status, result) {
+                                if (status) {
+                                    res.status(200).send(JSON.stringify({result: ansResult, attemptsLeft: attemptsLeft, error: false}));
+                                } else {
+                                    attemptsLeft += 1;
+                                    res.status(200).send(JSON.stringify({result: ansResult, attemptsLeft: attemptsLeft, error: true}));
+                                }
+                            });
+                        } else {
+                            attemptsLeft += 1;
+                            res.status(200).send(JSON.stringify({result: ansResult, attemptsLeft: attemptsLeft, error: true}));
+                        }
+                    });
+                } else {
+                    activity = {question: question, topic: topic, result: ansResult, score: qScore};
+                    RE.updateActivity(req.session.username, activity, function (status, result) {
+                        if (status) {
+                            res.status(200).send(JSON.stringify({result: ansResult, attemptsLeft: attemptsLeft, error: false}));
+                        } else {
+                            attemptsLeft += 1;
+                            res.status(200).send(JSON.stringify({result: ansResult, attemptsLeft: attemptsLeft, error: true}));
+                        }
+                    });
+                }
             }
         }
     });
