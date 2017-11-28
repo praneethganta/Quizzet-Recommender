@@ -67,61 +67,80 @@ exports.getAllComments = function (question_id, callback) {
     });
 };
 
-exports.displayQuestion = function (user, score, proficiencyLevel, courseInterests, callback) {
-    var level = 0;
-    if (score <=150) {
-        level = 1;
-    }
-    else if(score > 150 && score <=250) {
-        level = 2;
-    }
-    else {
-        level = 3;
-    }
-    weight_level = level * 100;
-    var tableName =  user + "_question_weights";
-    var query = "select t.*from question_and_answer t, " + tableName + " a WHERE a.weight < $1 and a.question_id = t.question_id";
-    var diffultyLevelList = [];
-    var courseTopicsList = [];
-    var combineList = [];
-    client.query(query, [weight_level], (err,result) => {
-        if (result.rows.length >= 1) {
-            rows = result.rows;
-            for(var i =0;i <rows.length; i++) {
-                if(courseInterests.indexOf(rows[i].course_topic) >=0 && difficultyMap[proficiencyLevel] == rows[i].level) {
-                    combineList.push(rows[i]);
-                }
-                else if(courseInterests.indexOf(rows[i].course_topic) >=0){
-                    courseTopicsList.push(rows[i]);
-                }
-                else if(difficultyMap[proficiencyLevel] == rows[i].level){
-                    diffultyLevelList.push(rows[i]);
-                }
-                else{
-                    continue;
-                }
-            }
-            if(combineList.length > 0) {
-                var randomPick = Math.floor(Math.random() * combineList.length);
-                callback(true, combineList[randomPick]);
-            }
-            else if(courseTopicsList.length > 0) {
-                var randomPick = Math.floor(Math.random() * courseTopicsList.length);
-                callback(true, courseTopicsList[randomPick]);
-            }
-            else if(diffultyLevelList.length > 0) {
-                var randomPick = Math.floor(Math.random() * diffultyLevelList.length);
-                callback(true, diffultyLevelList[randomPick]);
+exports.displayQuestion = function (user, score, proficiencyLevel, courseInterests, algoCount, callback) {
+    if (algoCount % 3 == 0){
+        var randomPick = Math.floor(Math.random() * 101);
+        client.query("select *from question_and_answer where question_id = $1", [randomPick], (err, result) => {
+            if(err) {
+                callback(false,null);
             }
             else {
-                var randomPick = Math.floor(Math.random() * rows.length);
-                callback(true, rows[randomPick]);
-
+                if(result.rows.length >= 1){
+                    callback(true, result.rows[0]);
+                } else {
+                    callback(false, null);
+                }
             }
-        } else {
-            callback(false, "Question not retrieved please reload");
+        });
+
+    }
+    else {
+        var level = 0;
+        if (score <=150) {
+            level = 1;
         }
-    });
+        else if(score > 150 && score <=250) {
+            level = 2;
+        }
+        else {
+            level = 3;
+        }
+        weight_level = level * 100;
+        var tableName =  user + "_question_weights";
+        var query = "select t.*from question_and_answer t, " + tableName + " a WHERE a.weight < $1 and a.question_id = t.question_id";
+        var diffultyLevelList = [];
+        var courseTopicsList = [];
+        var combineList = [];
+        client.query(query, [weight_level], (err,result) => {
+            if (result.rows.length >= 1) {
+                rows = result.rows;
+                for(var i =0;i <rows.length; i++) {
+                    if(courseInterests.indexOf(rows[i].course_topic) >=0 && difficultyMap[proficiencyLevel] == rows[i].level) {
+                        combineList.push(rows[i]);
+                    }
+                    else if(courseInterests.indexOf(rows[i].course_topic) >=0){
+                        courseTopicsList.push(rows[i]);
+                    }
+                    else if(difficultyMap[proficiencyLevel] == rows[i].level){
+                        diffultyLevelList.push(rows[i]);
+                    }
+                    else{
+                        continue;
+                    }
+                }
+                if(combineList.length > 0) {
+                    var randomPick = Math.floor(Math.random() * combineList.length);
+                    callback(true, combineList[randomPick]);
+                }
+                else if(courseTopicsList.length > 0) {
+                    var randomPick = Math.floor(Math.random() * courseTopicsList.length);
+                    callback(true, courseTopicsList[randomPick]);
+                }
+                else if(diffultyLevelList.length > 0) {
+                    var randomPick = Math.floor(Math.random() * diffultyLevelList.length);
+                    callback(true, diffultyLevelList[randomPick]);
+                }
+                else {
+                    var randomPick = Math.floor(Math.random() * rows.length);
+                    callback(true, rows[randomPick]);
+
+                }
+            } else {
+                callback(false, "Question not retrieved please reload");
+            }
+        });
+    }
+
 };
 
 exports.getRecommendations = function(topic, callback) {
@@ -237,7 +256,7 @@ function formatDate(date) {
 
 
 exports.getHeatMapdata = function (username, callback) {
-  client.query('select date(time), count(distinct question) as value from user_history where to_char(time,\'YYYY\') = to_char(now(),\'YYYY\') and username = $1 group by date;', [username], (err, result) => {
+  client.query('select date(time), count(*) as value from user_history where to_char(time,\'YYYY\') = to_char(now(),\'YYYY\') and username = $1 and result = true group by date;', [username], (err, result) => {
      if(err) {
          callback(false,"Error getting user data. Please reload");
      }

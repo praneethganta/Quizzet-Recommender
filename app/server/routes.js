@@ -5,7 +5,6 @@ var RE = require('./modules/recommendor');
 var score = 0;
 
 // Initializing Question Variables
-
 var maxPoints = null;
 var penalty = null;
 var qScore = null;
@@ -137,8 +136,7 @@ module.exports = function(app) {
             RE.getScore(req.session.username,function(status, result){
                 if (status){
                     score = result;
-
-                    RE.displayQuestion(req.session.username,score, proficiencyLevel, courseInterests, function (status, result) {
+                    RE.displayQuestion(req.session.username,score, proficiencyLevel, courseInterests,req.session.algoCount, function (status, result) {
                         if (status) {
                             question_id = result.question_id;
                             question = result.question.trim();
@@ -163,17 +161,17 @@ module.exports = function(app) {
 
 
                             if (level === "Easy") {
-                                maxPoints = 10;
+                                maxPoints = 5;
                                 penalty = -15;
-                                weight = 50;
-                            } else if (level === "Moderate") {
-                                maxPoints = 20;
-                                penalty = -10;
                                 weight = 40;
-                            } else if (level === "Difficult") {
-                                maxPoints = 30;
-                                penalty = -5;
+                            } else if (level === "Moderate") {
+                                maxPoints = 10;
+                                penalty = -10;
                                 weight = 30;
+                            } else if (level === "Difficult") {
+                                maxPoints = 15;
+                                penalty = -5;
+                                weight = 20;
                             }
 
                             res.render('home', {
@@ -410,11 +408,15 @@ module.exports = function(app) {
 
     app.post('/verifyAnswer', function (req, res) {
         if (req.session.loggedin === true) {
+            attemptsLeft -= 1;
             var userChoice = req.body.userChoice;
             var answerId = answer.substring(6,7).charCodeAt(0)-64;
             var activity = null;
 
             if (parseInt(userChoice) === answerId){
+                if(req.session.algoCount === undefined || req.session.algoCount == null)
+                    req.session.algoCount = 0;
+                req.session.algoCount = req.session.algoCount + 1
                 ansResult = true;
                 qScore = maxPoints;
                 weightUpdate = weight / (numAttempts - attemptsLeft);
@@ -434,10 +436,12 @@ module.exports = function(app) {
                     }
                 });
             } else {
-                attemptsLeft -= 1;
                 qScore = penalty;
 
                 if (attemptsLeft < 1) {
+                    if(req.session.algoCount === undefined || req.session.algoCount == null)
+                        req.session.algoCount = 0;
+                    req.session.algoCount = req.session.algoCount + 1
                     weightUpdate = 0 - weight;
 
                     RE.updateWeights(req.session.username, topic, weightUpdate, function (status, result) {
