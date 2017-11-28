@@ -490,7 +490,10 @@ module.exports = function(app) {
                                 if(status){
                                     //console.log(result);
                                     profileData["stackedBarChart"] = result;
-                                    res.status(200).send(JSON.stringify(profileData));
+                                    RE.getTopics(req.session.username, function(status, result){
+                                        if (status){
+                                            profileData["pieChart"] = result;
+                                            res.status(200).send(JSON.stringify(profileData));
                                 }
                                 else{
                                     res.status(500).send('Error loading Bar Chart Data.');
@@ -500,7 +503,10 @@ module.exports = function(app) {
                         else {
                             res.status(500).send('Error loading index.html');
                         }
-
+                            });
+                        } else{
+                            res.status(500).send('Error loading Pie Chart.');
+                        }
                     });
                 }
                 else {

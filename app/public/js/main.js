@@ -13,6 +13,7 @@ function load_charts() {
             timeseries(data.timeseriesData,"Date", "Score");
             heatMap(data.heatMapData)
             stackedBarChart(data["stackedBarChart"],"Date", "Counts");
+            topicPieChart(data["pieChart"]);
         }
     })
 }
@@ -343,6 +344,20 @@ function stackedBarChart(data, x_label, y_label){
             pattern: colors
         },
     });
+}
+
+function topicPieChart(data) {
+    var chart = c3.generate({
+        bindto: '#topicsPie',
+        data: {
+            columns: data,
+            type : 'pie',
+            onclick: function (d, i) { console.log("onclick", d, i); },
+            onmouseover: function (d, i) { console.log("onmouseover", d, i); },
+            onmouseout: function (d, i) { console.log("onmouseout", d, i); }
+        }
+    });
+
 }
 
 
