@@ -22,19 +22,20 @@
     "connect-mongo": "0.8.2",
     "cookie-parser": "1.4.0",
     "ejs": "^2.5.7",
+    "elasticsearch": "^14.0.0",
     "emailjs": "^1.0.4",
     "errorhandler": "1.4.2",
     "express": "4.13.3",
     "express-session": "1.11.3",
     "jade": "1.11.0",
+    "mathjs": "^3.17.0",
     "moment": "2.10.3",
     "mongodb": "2.0.45",
     "morgan": "^1.9.0",
     "pg": "^7.3.0",
     "python-shell": "^0.4.0",
-    "stylus": "0.52.4",
-    "q3": "^0.1.4",
-    "mathjs": "^3.17.0"
+    "q3": "^0.1.6",
+    "stylus": "0.52.4"
   },
   "main": "app.js",
   "scripts": {

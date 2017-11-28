@@ -118,7 +118,7 @@ module.exports = function(app) {
     });
 
     app.post('/getRecommendations', function (req, res) {
-       RE.getRecommendations(topic, function (status, result) {
+       RE.getRecommendations(question, topic, function (status, result) {
           if(status){
               linkList = {'topicLinks': result,'error': true};
               res.status(200).send(linkList);
