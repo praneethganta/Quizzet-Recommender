@@ -442,17 +442,25 @@ module.exports = function(app) {
             RE.getScoreTimeline(req.session.username, function (status, result) {
                 if (status) {
                     profileData["timeSeries"] = result;
-                    RE.getAllActivityCounts(req.session.username, function(status,result){
-                        if(status){
-                            //console.log(result);
-                            profileData["stackedBarChart"] = result;
-                            res.status(200).send(JSON.stringify(profileData));
-                        }
-                        else{
-                            res.status(500).send('Error loading Bar Chart Data.');
-                        }
+                    RE.getTopics(req.session.username, function(status, result){
+                        if (status){
+                            profileData["pieChart"] = result;
+                            RE.getAllActivityCounts(req.session.username, function(status,result){
+                                if(status){
+                                    //console.log(result);
+                                    profileData["stackedBarChart"] = result;
+                                    res.status(200).send(JSON.stringify(profileData));
+                                }
+                                else{
+                                    res.status(500).send('Error loading Bar Chart Data.');
+                                }
 
+                            });
+                        } else{
+                            res.status(500).send('Error loading Pie Chart.');
+                        }
                     });
+
 
                 }else {
                     res.status(500).send('Error loading Time series data.');

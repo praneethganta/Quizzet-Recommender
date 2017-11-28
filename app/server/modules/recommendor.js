@@ -215,6 +215,8 @@ exports.getScoreTimeline = function (user, callback) {
     });
 };
 
+
+
 Array.prototype.unique = function()
 {
     var tmp = {}, out = [];
@@ -275,6 +277,27 @@ exports.getAllActivityCounts = function(user, callback){
                 finalData.push(row1);
             }
             callback(true,finalData);
+        }
+    });
+};
+
+exports.getTopics = function( username, callback) {
+    query = 'select course_topic , sum(weight) "sum" from '+ username +'_question_weights where weight>0 group by course_topic;';
+    client.query(query, (err,result) =>{
+        if (err){
+            callback(false, "Error retrieving question coverage.");
+        } else{
+            if (result.rows.length){
+                var rows = result.rows;
+                var finalResult = [];
+                for( var i =0; i<rows.length; i++){
+                    row = [rows[i]["course_topic"]];
+                    row.push(rows[i]["sum"]);
+                    finalResult.push(row);
+                }
+                callback(true, finalResult);
+
+            }
         }
     });
 };
