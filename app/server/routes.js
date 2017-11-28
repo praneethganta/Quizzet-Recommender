@@ -22,6 +22,9 @@ var attemptsLeft = null;
 var question_id = null;
 
 var sortCriteria = "global";
+var profileData = {};
+var courseInterests = null;
+var proficiencyLevel = null;
 
 module.exports = function(app) {
 
@@ -44,6 +47,8 @@ module.exports = function(app) {
                             if (status){
                                 req.session.fullname = result.firstname + " " + result.lastname;
                                 req.session.gender = result.sex;
+                                courseInterests = result.topics_known.split(',');
+                                proficiencyLevel = result.java_proficiency;
                                 res.redirect('/home');
                             }
                             else {
@@ -113,6 +118,18 @@ module.exports = function(app) {
         }
     });
 
+    app.post('/getRecommendations', function (req, res) {
+       RE.getRecommendations(topic, function (status, result) {
+          if(status){
+              linkList = {'topicLinks': result,'error': true};
+              res.status(200).send(linkList);
+          }
+          else {
+              res.status(500).send(null);
+          }
+       });
+    });
+
 	app.get('/home', function(req, res){
         if (req.session.loggedin === undefined || req.session.loggedin === false){
             res.redirect('/');
@@ -121,7 +138,7 @@ module.exports = function(app) {
                 if (status){
                     score = result;
 
-                    RE.displayQuestion(req.session.username,score, function (status, result) {
+                    RE.displayQuestion(req.session.username,score, proficiencyLevel, courseInterests, function (status, result) {
                         if (status) {
                             question_id = result.question_id;
                             question = result.question.trim();
@@ -434,13 +451,23 @@ module.exports = function(app) {
     });
 
     app.post('/fetchdata', function (req, res) {
+        profileData = {};
         if (req.session.loggedin === undefined || req.session.loggedin === false) {
             res.redirect('/');
         } else {
             RE.getScoreTimeline(req.session.username, function (status, result) {
                 if (status) {
-                    console.log(result);
-                    res.status(200).send(JSON.stringify({data: result}));
+                    profileData.timeseriesData = result;
+                    RE.getHeatMapdata(req.session.username,function (status, result) {
+                        if(status) {
+                            profileData.heatMapData = result;
+                            res.status(200).send(JSON.stringify(profileData));
+                        }
+                        else {
+                            res.status(500).send('Error loading index.html');
+                        }
+
+                    });
                 }
                 else {
                     res.status(500).send('Error loading index.html');

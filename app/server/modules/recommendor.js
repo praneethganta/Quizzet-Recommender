@@ -14,6 +14,7 @@ const client = new Client({
 });
 client.connect();
 
+var difficultyMap = {"Beginner" : "Easy", "Intermediate":"Moderate","Advanced":"Difficult"}
 exports.updateActivity = function (user, activity, callback) {
     client.query("INSERT INTO user_history (username, question, topic, result, score) VALUES ($1, $2, $3, $4, $5)",
         [user, activity.question, activity.topic, activity.result,  activity.score], (err, result) => {
@@ -28,7 +29,7 @@ exports.updateActivity = function (user, activity, callback) {
 
 exports.updateWeights = function (user, topic, weight, callback) {
     var tableName =  user + "_question_weights";
-    var query = "UPDATE " + tableName + " SET weight=$1 WHERE course_topic=$2;";
+    var query = "UPDATE " + tableName + " SET weight= weight + $1 WHERE course_topic=$2;";
     client.query(query, [weight, topic], (err, result) => {
         if (err) {
             callback(false, "Error updating weights");
@@ -66,7 +67,7 @@ exports.getAllComments = function (question_id, callback) {
     });
 };
 
-exports.displayQuestion = function (user, score, callback) {
+exports.displayQuestion = function (user, score, proficiencyLevel, courseInterests, callback) {
     var level = 0;
     if (score <=150) {
         level = 1;
@@ -79,25 +80,65 @@ exports.displayQuestion = function (user, score, callback) {
     }
     weight_level = level * 100;
     var tableName =  user + "_question_weights";
-    var query = "select question_id from " + tableName + " WHERE weight < $1;";
+    var query = "select t.*from question_and_answer t, " + tableName + " a WHERE a.weight < $1 and a.question_id = t.question_id";
+    var diffultyLevelList = [];
+    var courseTopicsList = [];
+    var combineList = [];
     client.query(query, [weight_level], (err,result) => {
         if (result.rows.length >= 1) {
-            var randomPick = Math.floor(Math.random() * result.rows.length);
-            var question_id = result.rows[randomPick].question_id;
-            client.query("select *from question_and_answer where question_id = $1", [question_id], (err,result) => {
-                if(err){
-                    callback(false, "Question not retrieved please reload");
+            rows = result.rows;
+            for(var i =0;i <rows.length; i++) {
+                if(courseInterests.indexOf(rows[i].course_topic) >=0 && difficultyMap[proficiencyLevel] == rows[i].level) {
+                    combineList.push(rows[i]);
                 }
-                else {
-                    callback(true, result.rows[0]);
+                else if(courseInterests.indexOf(rows[i].course_topic) >=0){
+                    courseTopicsList.push(rows[i]);
                 }
+                else if(difficultyMap[proficiencyLevel] == rows[i].level){
+                    diffultyLevelList.push(rows[i]);
+                }
+                else{
+                    continue;
+                }
+            }
+            if(combineList.length > 0) {
+                var randomPick = Math.floor(Math.random() * combineList.length);
+                callback(true, combineList[randomPick]);
+            }
+            else if(courseTopicsList.length > 0) {
+                var randomPick = Math.floor(Math.random() * courseTopicsList.length);
+                callback(true, courseTopicsList[randomPick]);
+            }
+            else if(diffultyLevelList.length > 0) {
+                var randomPick = Math.floor(Math.random() * diffultyLevelList.length);
+                callback(true, diffultyLevelList[randomPick]);
+            }
+            else {
+                var randomPick = Math.floor(Math.random() * rows.length);
+                callback(true, rows[randomPick]);
 
-            });
-
+            }
         } else {
             callback(false, "Question not retrieved please reload");
         }
     });
+};
+
+exports.getRecommendations = function(topic, callback) {
+  client.query("select links from topic_links where topic = $1", [topic], (err, result) => {
+      if (err) {
+          callback(false, err);
+      }
+      else {
+          if(result.rows.length >= 1){
+              links = result.rows[0].links.split(',');
+              callback(true, links);
+          }
+          else {
+              callback(false, null);
+          }
+      }
+  });
 };
 
 exports.createWeightsTable = function (user, callback) {
@@ -193,6 +234,22 @@ function formatDate(date) {
 
     return [year, month, day].join('-');
 }
+
+
+exports.getHeatMapdata = function (username, callback) {
+  client.query('select date(time), count(distinct question) as value from user_history where to_char(time,\'YYYY\') = to_char(now(),\'YYYY\') and username = $1 group by date;', [username], (err, result) => {
+     if(err) {
+         callback(false,"Error getting user data. Please reload");
+     }
+     else {
+         rows = result.rows;
+         for (var i = 0;i<rows.length; i++ ) {
+             rows[i].date = formatDate(rows[i].date);
+         }
+         callback(true, rows);
+     }
+  });
+};
 
 exports.getScoreTimeline = function (user, callback) {
     client.query("SELECT sum(score), date(time) FROM user_history WHERE username= $1 GROUP BY date;", [user], (err, result) => {
