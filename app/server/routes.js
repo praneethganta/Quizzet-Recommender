@@ -5,7 +5,6 @@ var RE = require('./modules/recommendor');
 var score = 0;
 
 // Initializing Question Variables
-
 var maxPoints = null;
 var penalty = null;
 var qScore = null;
@@ -23,6 +22,8 @@ var question_id = null;
 
 var sortCriteria = "global";
 var profileData = {};
+var courseInterests = null;
+var proficiencyLevel = null;
 
 module.exports = function(app) {
 
@@ -45,6 +46,8 @@ module.exports = function(app) {
                             if (status){
                                 req.session.fullname = result.firstname + " " + result.lastname;
                                 req.session.gender = result.sex;
+                                courseInterests = result.topics_known.split(',');
+                                proficiencyLevel = result.java_proficiency;
                                 res.redirect('/home');
                             }
                             else {
@@ -114,6 +117,18 @@ module.exports = function(app) {
         }
     });
 
+    app.post('/getRecommendations', function (req, res) {
+       RE.getRecommendations(topic, function (status, result) {
+          if(status){
+              linkList = {'topicLinks': result,'error': true};
+              res.status(200).send(linkList);
+          }
+          else {
+              res.status(500).send(null);
+          }
+       });
+    });
+
 	app.get('/home', function(req, res){
         if (req.session.loggedin === undefined || req.session.loggedin === false){
             res.redirect('/');
@@ -121,8 +136,7 @@ module.exports = function(app) {
             RE.getScore(req.session.username,function(status, result){
                 if (status){
                     score = result;
-
-                    RE.displayQuestion(req.session.username,score, function (status, result) {
+                    RE.displayQuestion(req.session.username,score, proficiencyLevel, courseInterests,req.session.algoCount, function (status, result) {
                         if (status) {
                             question_id = result.question_id;
                             question = result.question.trim();
@@ -147,17 +161,17 @@ module.exports = function(app) {
 
 
                             if (level === "Easy") {
-                                maxPoints = 10;
+                                maxPoints = 5;
                                 penalty = -15;
-                                weight = 50;
-                            } else if (level === "Moderate") {
-                                maxPoints = 20;
-                                penalty = -10;
                                 weight = 40;
-                            } else if (level === "Difficult") {
-                                maxPoints = 30;
-                                penalty = -5;
+                            } else if (level === "Moderate") {
+                                maxPoints = 10;
+                                penalty = -10;
                                 weight = 30;
+                            } else if (level === "Difficult") {
+                                maxPoints = 15;
+                                penalty = -5;
+                                weight = 20;
                             }
 
                             res.render('home', {
@@ -394,16 +408,20 @@ module.exports = function(app) {
 
     app.post('/verifyAnswer', function (req, res) {
         if (req.session.loggedin === true) {
+            attemptsLeft -= 1;
             var userChoice = req.body.userChoice;
             var answerId = answer.substring(6,7).charCodeAt(0)-64;
             var activity = null;
 
             if (parseInt(userChoice) === answerId){
+                if(req.session.algoCount === undefined || req.session.algoCount == null)
+                    req.session.algoCount = 0;
+                req.session.algoCount = req.session.algoCount + 1
                 ansResult = true;
                 qScore = maxPoints;
                 weightUpdate = weight / (numAttempts - attemptsLeft);
 
-                RE.updateWeights(req.session.username, topic, weight, function (status, result) {
+                RE.updateWeights(req.session.username, topic, weightUpdate, function (status, result) {
                     if (status) {
                         activity = {question: question, topic: topic, result: ansResult, score: qScore};
                         RE.updateActivity(req.session.username, activity, function (status, result) {
@@ -418,18 +436,41 @@ module.exports = function(app) {
                     }
                 });
             } else {
-                attemptsLeft -= 1;
                 qScore = penalty;
 
-                activity = {question: question, topic: topic, result: ansResult, score: qScore};
-                RE.updateActivity(req.session.username, activity, function (status, result) {
-                    if (status) {
-                        res.status(200).send(JSON.stringify({result: ansResult, attemptsLeft: attemptsLeft, error: false}));
-                    } else {
-                        attemptsLeft += 1;
-                        res.status(200).send(JSON.stringify({result: ansResult, attemptsLeft: attemptsLeft, error: true}));
-                    }
-                });
+                if (attemptsLeft < 1) {
+                    if(req.session.algoCount === undefined || req.session.algoCount == null)
+                        req.session.algoCount = 0;
+                    req.session.algoCount = req.session.algoCount + 1
+                    weightUpdate = 0 - weight;
+
+                    RE.updateWeights(req.session.username, topic, weightUpdate, function (status, result) {
+                        if (status) {
+                            activity = {question: question, topic: topic, result: ansResult, score: qScore};
+                            RE.updateActivity(req.session.username, activity, function (status, result) {
+                                if (status) {
+                                    res.status(200).send(JSON.stringify({result: ansResult, attemptsLeft: attemptsLeft, error: false}));
+                                } else {
+                                    attemptsLeft += 1;
+                                    res.status(200).send(JSON.stringify({result: ansResult, attemptsLeft: attemptsLeft, error: true}));
+                                }
+                            });
+                        } else {
+                            attemptsLeft += 1;
+                            res.status(200).send(JSON.stringify({result: ansResult, attemptsLeft: attemptsLeft, error: true}));
+                        }
+                    });
+                } else {
+                    activity = {question: question, topic: topic, result: ansResult, score: qScore};
+                    RE.updateActivity(req.session.username, activity, function (status, result) {
+                        if (status) {
+                            res.status(200).send(JSON.stringify({result: ansResult, attemptsLeft: attemptsLeft, error: false}));
+                        } else {
+                            attemptsLeft += 1;
+                            res.status(200).send(JSON.stringify({result: ansResult, attemptsLeft: attemptsLeft, error: true}));
+                        }
+                    });
+                }
             }
         }
     });
@@ -441,29 +482,35 @@ module.exports = function(app) {
         } else {
             RE.getScoreTimeline(req.session.username, function (status, result) {
                 if (status) {
-                    profileData["timeSeries"] = result;
-                    RE.getTopics(req.session.username, function(status, result){
-                        if (status){
-                            profileData["pieChart"] = result;
+                    profileData.timeseriesData = result;
+                    RE.getHeatMapdata(req.session.username,function (status, result) {
+                        if(status) {
+                            profileData.heatMapData = result;
                             RE.getAllActivityCounts(req.session.username, function(status,result){
                                 if(status){
                                     //console.log(result);
                                     profileData["stackedBarChart"] = result;
-                                    res.status(200).send(JSON.stringify(profileData));
+                                    RE.getTopics(req.session.username, function(status, result){
+                                        if (status){
+                                            profileData["pieChart"] = result;
+                                            res.status(200).send(JSON.stringify(profileData));
                                 }
                                 else{
                                     res.status(500).send('Error loading Bar Chart Data.');
                                 }
-
+                            });
+                        }
+                        else {
+                            res.status(500).send('Error loading index.html');
+                        }
                             });
                         } else{
                             res.status(500).send('Error loading Pie Chart.');
                         }
                     });
-
-
-                }else {
-                    res.status(500).send('Error loading Time series data.');
+                }
+                else {
+                    res.status(500).send('Error loading index.html');
                 }
 
 

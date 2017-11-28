@@ -47,6 +47,8 @@
         var alertElement = document.getElementById("alert_text");
         var nextQuestion = document.getElementById("nextQuestion");
         var resultElement = document.getElementById("result");
+        var suggestionsAlert = document.getElementById("suggestions");
+        var suggestionElement = document.getElementById("suggestion_text")
         resultElement.removeAttribute("hidden");
 
         var http = new XMLHttpRequest();
@@ -67,9 +69,32 @@
             } else {
                 if (response.attemptsLeft < 1) {
                     alertElement.innerText = "You've run out of attempts for this question! Please proceed to the next question.";
+                    var http = new XMLHttpRequest();
+                    var url = "/getRecommendations";
+                    http.open("POST", url, false);
+                    http.setRequestHeader("Content-Type", "application/json");
+                    http.send();
+
+                    var response = JSON.parse(http.responseText);
+                    console.log(response);
+                    if (!response.error) {
+                        html = 'Sorry something went wrong please make a note of this question.'
+                    }
+                    else {
+                        console.log("here");
+                        var html = "<b>Please refer to the following links for topic proficiency</b></br><ul>";
+                        topicSuggestions = response["topicLinks"];
+                        for (var i = 0; i< topicSuggestions.length; i++) {
+                            html += "<li><a href=\"" + topicSuggestions[i] + "\" target = \"_blank\">" + topicSuggestions[i] +"</a></li>";
+                        }
+                        html += "</ul>";
+                    }
+                    suggestionElement.innerHTML = html;
                     resultElement.classList.remove("alert-success");
                     resultElement.classList.add("alert-danger");
                     submitElement.setAttribute("disabled", true);
+                    suggestionsAlert.removeAttribute('hidden');
+                    suggestionsAlert.classList.add("alert-info");
                     nextQuestion.removeAttribute("disabled");
                 } else {
                     alertElement.innerText = "Wrong answer! Please try again.";
@@ -369,8 +394,15 @@
                 </div>
                 <br/>
             </div>
+            <div>
+
         </div>
-        <div>
+
+        </div>
+        <div class="alert alert-info" role="alert"  id="suggestions" hidden>
+            <h5 id="suggestion_text"></h5>
+        </div>
+        <div class="card mb-3">
             <div class="card-header">
                 <h4><i class="fa fa-commenting"></i> Discussions :</h4>
             </div>
@@ -387,10 +419,14 @@
             <div class="form-group">
                 <label for="comment">Comment:</label>
                 <textarea placeholder="Please add your comments here" class="form-control" rows="5" id="comment"></textarea>
+                <br>
+                <button id="post_button" style="float:left" type="button" class="btn btn-success">Post <i class="fa fa-paper-plane" aria-hidden="true"></i></button>
+
+                <br><br><br>
+
             </div>
-            <div class="form-group" style="float:left; width:25%">
-                <button id="post_button" type="button" class="btn btn-success">Post <i class="fa fa-paper-plane" aria-hidden="true"></i></button>
-            </div>
+
+
         </div>
 
     </div>

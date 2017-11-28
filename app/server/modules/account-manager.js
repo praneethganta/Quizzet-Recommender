@@ -14,7 +14,7 @@ client.connect();
 const bcrypt = require('bcrypt');
 
 exports.getUserDetails = function(user, callback) {
-    client.query("select *from user_details a, user_complete_details b where a.username = $1 and b.username = $2", [user,user], (err, result) => {
+    client.query("select *from user_complete_details where username = $1", [user], (err, result) => {
         if (err) {
             callback(false, "Something went wrong please login again.");
         }
