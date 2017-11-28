@@ -41,7 +41,9 @@
                     <h3 class="panel-title"><strong>Sign Up</strong></h3>
                 </div>
                 <div class="panel-body">
-                    <div class="alert alert-danger text-center" role="alert" id="error"></div>
+                    <% if (error !== "") { %>
+                        <div class="alert alert-danger text-center" role="alert" id="error"></div>
+                    <% } %>
                     <script>
                         var error = "<%= error %>";
                         if(error === "Username is already taken. Please try again." || error === ""){
