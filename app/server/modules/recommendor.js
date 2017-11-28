@@ -313,6 +313,10 @@ function zeros([rows, cols]) {
     return x;
 }
 
+function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 exports.getAllActivityCounts = function(user, callback){
     client.query('select username, date(time) "day", count( distinct question) from user_history group by username,2 order by 2', (err,res) => {
         if (err) {
@@ -335,6 +339,10 @@ exports.getAllActivityCounts = function(user, callback){
 
             for (var i = 0;i <values.length;i++){
                 dataMatrix[uniqueUsers.indexOf(values[i]["username"])*2][uniqueDates.indexOf(String(values[i]["day"]))] = values[i]["count"];
+                for (var j =0; j<uniqueDates.length; j++){
+                    dataMatrix[i+1][j] = getRandomInt(0, 7);
+                }
+
             }
             //console.log(dataMatrix);
             var finalDates= ['x'];
