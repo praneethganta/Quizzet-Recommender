@@ -419,7 +419,7 @@ module.exports = function(app) {
                 qScore = maxPoints;
                 weightUpdate = weight / (numAttempts - attemptsLeft);
 
-                RE.updateWeights(req.session.username, topic, weight, function (status, result) {
+                RE.updateWeights(req.session.username, topic, weightUpdate, function (status, result) {
                     if (status) {
                         activity = {question: question, topic: topic, result: ansResult, score: qScore};
                         RE.updateActivity(req.session.username, activity, function (status, result) {
@@ -437,15 +437,36 @@ module.exports = function(app) {
                 attemptsLeft -= 1;
                 qScore = penalty;
 
-                activity = {question: question, topic: topic, result: ansResult, score: qScore};
-                RE.updateActivity(req.session.username, activity, function (status, result) {
-                    if (status) {
-                        res.status(200).send(JSON.stringify({result: ansResult, attemptsLeft: attemptsLeft, error: false}));
-                    } else {
-                        attemptsLeft += 1;
-                        res.status(200).send(JSON.stringify({result: ansResult, attemptsLeft: attemptsLeft, error: true}));
-                    }
-                });
+                if (attemptsLeft < 1) {
+                    weightUpdate = 0 - weight;
+
+                    RE.updateWeights(req.session.username, topic, weightUpdate, function (status, result) {
+                        if (status) {
+                            activity = {question: question, topic: topic, result: ansResult, score: qScore};
+                            RE.updateActivity(req.session.username, activity, function (status, result) {
+                                if (status) {
+                                    res.status(200).send(JSON.stringify({result: ansResult, attemptsLeft: attemptsLeft, error: false}));
+                                } else {
+                                    attemptsLeft += 1;
+                                    res.status(200).send(JSON.stringify({result: ansResult, attemptsLeft: attemptsLeft, error: true}));
+                                }
+                            });
+                        } else {
+                            attemptsLeft += 1;
+                            res.status(200).send(JSON.stringify({result: ansResult, attemptsLeft: attemptsLeft, error: true}));
+                        }
+                    });
+                } else {
+                    activity = {question: question, topic: topic, result: ansResult, score: qScore};
+                    RE.updateActivity(req.session.username, activity, function (status, result) {
+                        if (status) {
+                            res.status(200).send(JSON.stringify({result: ansResult, attemptsLeft: attemptsLeft, error: false}));
+                        } else {
+                            attemptsLeft += 1;
+                            res.status(200).send(JSON.stringify({result: ansResult, attemptsLeft: attemptsLeft, error: true}));
+                        }
+                    });
+                }
             }
         }
     });
@@ -461,7 +482,16 @@ module.exports = function(app) {
                     RE.getHeatMapdata(req.session.username,function (status, result) {
                         if(status) {
                             profileData.heatMapData = result;
-                            res.status(200).send(JSON.stringify(profileData));
+                            RE.getAllActivityCounts(req.session.username, function(status,result){
+                                if(status){
+                                    //console.log(result);
+                                    profileData["stackedBarChart"] = result;
+                                    res.status(200).send(JSON.stringify(profileData));
+                                }
+                                else{
+                                    res.status(500).send('Error loading Bar Chart Data.');
+                                }
+                            });
                         }
                         else {
                             res.status(500).send('Error loading index.html');
@@ -472,6 +502,7 @@ module.exports = function(app) {
                 else {
                     res.status(500).send('Error loading index.html');
                 }
+
 
             });
         }
