@@ -3,7 +3,7 @@
 const {Pool, Client} = require('pg');
 const client = new Client({
     user: 'awuser',
-    host: 'awdbinstance.crgkoefokbdm.us-east-1.rds.amazonaws.com',
+    host: '', // Your PostgreSQL server API here
     database: 'awDb',
     password: 'Adaptiveweb123',
     port: 5432
