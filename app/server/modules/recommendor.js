@@ -7,7 +7,7 @@
 const {Pool, Client} = require('pg');
 const client = new Client({
     user: 'awuser',
-    host: 'awdbinstance.crgkoefokbdm.us-east-1.rds.amazonaws.com',
+    host: '', //Your postgreSQL server endpoint here
     database: 'awDb',
     password: 'Adaptiveweb123',
     port: 5432
@@ -29,7 +29,7 @@ exports.updateActivity = function (user, activity, callback) {
 
 var elasticsearch = require('elasticsearch');
 var esclient = new elasticsearch.Client({
-    host: 'https://search-recommendelastic-ywwju7f53jk2b2nmic2y656it4.us-east-2.es.amazonaws.com',
+    host: '', // Your ElasticSearch server endpoint over here
     log: 'trace'
 });
 
